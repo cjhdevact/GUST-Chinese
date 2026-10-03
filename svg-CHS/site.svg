@@ -1,0 +1,1656 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xhtml="http://www.w3.org/1999/xhtml" width="100%" height="100%">
+    <foreignObject width="100%" height="100%" requiredExtensions="http://www.w3.org/1999/xhtml">
+    <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GUST 浏览器</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="stylesheet" href="./static/css.css" />
+    <script src="https://cdn.jsdelivr.net/npm/iso-639-1@2.1.11/build/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/libcurl.js@latest/libcurl_full.js"></script>
+</head>
+<body>
+    <div class="app">
+        <div class="titlebar">
+            <div class="tab-strip-wrapper">
+                <button class="tab-strip-scroll-btn" id="tabScrollLeft" title="向左滚动标签页">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <div class="tab-strip" id="tabStrip">
+                    <button class="tab active" id="tabActive" data-tab-id="1">
+                        <span class="tab-icon"><i class="fas fa-earth-americas"></i></span>
+                        <span class="tab-title" id="tabTitle">新标签页</span>
+                    </button>
+                    <button class="tab-add" id="newTab" title="新建标签页 (Ctrl+T)" style="flex-shrink:0;">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+                <button class="tab-strip-scroll-btn" id="tabScrollRight" title="向右滚动标签页">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+
+            <button class="tool-btn" id="metricsBtn" title="浏览器指标" style="border:1px solid var(--bd);">
+                <i class="fas fa-chart-simple"></i>
+            </button>
+            <span class="status-pill" id="titlebarStatus">
+                <span class="status-dot idle" id="titlebarStatusDot"></span>
+                <span id="titlebarStatusLabel">就绪</span>
+            </span>
+        </div>
+
+        <div class="navbar">
+            <button class="nav-btn" id="fullscreenBtn" title="切换全屏 (F11)">
+                <i class="fas fa-expand" id="fullscreenIcon"></i>
+            </button>
+            <button class="nav-btn" id="historyBtn" title="最近历史 (Alt+H)">
+                <i class="fas fa-clock-rotate-left"></i>
+            </button>
+            <div
+                style="width:1px;height:22px;background:var(--bd);opacity:0.6;flex-shrink:0;align-self:center;margin:0 2px;">
+            </div>
+            <div class="nav-pill-group" id="navPillGroup">
+                <button class="nav-btn nav-pill-btn" id="back" title="后退">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <button class="nav-btn nav-pill-btn" id="fwd" title="前进">
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+                <button class="nav-btn nav-pill-btn" id="reload" title="刷新 (Ctrl+R)">
+                    <i class="fas fa-rotate-right"></i>
+                </button>
+                <button class="nav-btn nav-pill-btn hidden" id="stop" title="停止加载">
+                    <i class="fas fa-stop"></i>
+                </button>
+                <button class="nav-btn nav-pill-btn" id="home" title="主页">
+                    <i class="fas fa-house"></i>
+                </button>
+            </div>
+
+            <div class="omnibox" title="搜索或输入网址">
+                <div class="security-chip neutral" id="securityChip">
+                    <i class="fas fa-lock" id="securityIcon"></i>
+                    <span id="securityText"></span>
+                </div>
+                <input type="text" class="url-input" id="url" value="gust://newtab" spellcheck="false"
+                    autocomplete="off" placeholder="搜索或输入网址" />
+                <span class="omni-drop-hint" id="omniDropHint">
+                    <i class="fas fa-arrow-right-to-bracket"></i>拖放到此处导航
+                </span>
+                <div class="omnibox-actions">
+                    <button class="omni-btn" id="bookmarkBtn" title="收藏 (Ctrl+D)">
+                        <i class="far fa-bookmark"></i>
+                    </button>
+                    <button class="omni-btn go" id="go" title="前往">
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <button class="tool-btn" id="showBookmarksBtn" style="display: none;" title="显示书签栏">
+                <i class="fas fa-chevron-down"></i>
+            </button>
+            <button class="tool-btn" id="settingsBtn" title="设置">
+                <i class="fas fa-gear"></i>
+            </button>
+            <button class="tool-btn" id="devToggle" title="切换日志 (Ctrl+Shift+I)">
+                <i class="fas fa-server"></i>
+            </button>
+            <button class="tool-btn" id="codeBtn" title="切换元素检查器">
+                <i class="fas fa-code"></i>
+            </button>
+
+            <button class="tool-toggle on" id="blockToggle" title="切换广告/跟踪器拦截">
+                <i class="fas fa-shield-halved"></i>
+                <span id="blockState">已保护</span>
+            </button>
+        </div>
+
+        <div class="bookmarks-bar-wrap" id="bookmarksWrap">
+        <div class="bookmarks-bar" id="bookmarks">
+            <button class="bookmarks-toggle" id="bookmarksToggle" title="隐藏书签栏">
+                <i class="fas fa-chevron-up"></i>
+            </button>
+        </div>
+        </div>
+
+        <main>
+            <div class="view">
+                <div class="progress-wrap hidden" id="progressWrap">
+                    <div class="progress-bar" id="progress"></div>
+                </div>
+
+                <div class="newtab active" id="newtab">
+                    <div class="nt-bg" id="ntBg"></div>
+                    <div class="nt-overlay"></div>
+                    
+                    <button class="nt-wallpaper-btn" id="ntGithubBtn" title="在 GitHub 上查看"
+                        style="left:76px;right:auto;">
+                        <i class="fab fa-github"></i>
+                    </button>
+                    <button class="nt-wallpaper-btn" id="ntWallpaperBtn" title="更改背景"
+                        style="left:20px;right:auto;">
+                        <i class="fas fa-image"></i>
+                    </button>
+
+                    
+                    
+
+                    <div class="nt-content">
+                        <div class="nt-header">
+                            <div class="nt-date" id="ntDate">-</div>
+                            <div class="nt-time" id="ntTime" style="display:flex;align-items:center;gap:12px;">--:-- <i id="ntTimeIcon" class="fas fa-moon" style="font-size:0.85em;color:var(--ac);"></i></div>
+                        </div>
+                        <div class="nt-brand" style="position:relative;">
+                            <i class="fas fa-wind gust-icon-anim" style="margin-right: -4px;"></i>
+                            <span style="letter-spacing: 3px; display:inline-flex;">
+                                <span class="gust-letter-G">G</span><span class="gust-letter-U">U</span><span class="gust-letter-S">S</span><span class="gust-letter-T">T</span>
+                            </span>
+                            <span class="gust-badge-anim" style="
+                                font-size: 11px;
+                                font-weight: 700;
+                                letter-spacing: 0.05em;
+                                color: var(--ac);
+                                background: rgba(157,229,255,0.10);
+                                border: 1px solid rgba(157,229,255,0.35);
+                                border-radius: 6px;
+                                padding: 2px 7px;
+                                margin-left: 10px;
+                                vertical-align: middle;
+                                line-height: 1.4;
+                                font-family: var(--mono);
+                                position: relative;
+                                top: -16px;
+                                margin-left: -3px;
+                            ">v1.0</span>
+                        </div>
+                        <div class="nt-search">
+                            <div class="nt-search-engine" id="ntEngine">
+                                <span id="ntEngineLabel">Bing</span>
+                                <i class="fas fa-chevron-down"></i>
+                                <div class="nt-engine-dropdown" id="ntEngineDropdown">
+                                    <button data-engine="brave">Brave</button>
+                                    <button data-engine="bing">Bing</button>
+                                    <button data-engine="baidu">百度</button>
+                                </div>
+                            </div>
+                            <input id="ntSearch" placeholder="搜索或输入网址" autocomplete="off" />
+                            <button id="ntSearchBtn"><i class="fas fa-arrow-right"></i></button>
+                        </div>
+                        <div class="nt-favorites" id="ntFavorites"></div>
+                    </div>
+                </div>
+
+                
+                
+                
+                <div class="site-info-popup" id="historyPopup">
+                    <div class="site-info-box" style="width:300px;">
+                        <div class="site-info-header">
+                            <div class="site-info-icon neutral">
+                                <i class="fas fa-clock-rotate-left"></i>
+                            </div>
+                            <div>
+                                <div class="site-info-title">最近历史</div>
+                                <div class="site-info-subtitle">最近访问的 20 个网站</div>
+                            </div>
+                        </div>
+                        <div id="historyList" style="padding: 8px 8px;"></div>
+                        <div class="site-info-footer">
+                            <button class="site-info-btn" id="historyClear">
+                                <i class="fas fa-trash"></i> Clear
+                            </button>
+                            <button class="site-info-btn" id="historyClose">
+                                <i class="fas fa-times"></i> Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div class="adblock-modal" id="adblockModal">
+                    <div class="adblock-header">
+                        <div class="adblock-title">
+                            <i class="fas fa-shield-halved" style="color: var(--ac);"></i>
+                            <span>Gust 广告拦截</span>
+                        </div>
+                        <button id="adblockCloseBtn"
+                            style="background:none; border:none; color:var(--tx2); cursor:pointer;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="adblock-content">
+                        <div class="adblock-big-toggle" id="adblockLargeToggle">
+                            <i class="fas fa-power-off"></i>
+                        </div>
+                        <div class="adblock-stats">
+                            <strong id="adblockStatusText">防护已启用</strong>
+                            <span id="adblockStatsCount">0</span> 个元素已在此页拦截
+                        </div>
+                    </div>
+                    <div class="adblock-footer">
+                        <button class="adblock-manage-btn" id="adblockManageBtn"> 管理过滤器和设置 </button>
+                    </div>
+                </div>
+
+                <div class="bookmark-modal" id="wallpaperModal" style="display: none;">
+                    <div class="bookmark-modal-content">
+                        <h3>更改背景</h3>
+
+                        <div class="wallpaper-action-grid">
+                            <button class="wallpaper-action-btn" id="wallpaperRandom">
+                                <i class="fas fa-shuffle"></i> 随机
+                            </button>
+                            <label class="wallpaper-action-btn" style="cursor: pointer;">
+                                <input type="file" id="wallpaperFileInput" accept="image/*" style="display:none" />
+                                <i class="fas fa-upload"></i> 上传
+                            </label>
+                        </div>
+
+                        <input type="text" class="bookmark-modal-input" id="wallpaperUrlInput"
+                            placeholder="或在此粘贴图片网址…" />
+
+                        <div class="bookmark-modal-buttons">
+                            <button class="bookmark-modal-btn secondary" id="wallpaperDefault"><i
+                                    class="fas fa-rotate-left" style="margin-right:6px;"></i>重置</button>
+                            <button class="bookmark-modal-btn secondary" id="wallpaperCancel">取消</button>
+                            <button class="bookmark-modal-btn primary" id="wallpaperApply">应用网址</button>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div class="bookmark-modal" id="addFavoriteModal" style="display: none;">
+                    <div class="bookmark-modal-content">
+                        <h3>添加收藏</h3>
+                        <input type="text" class="bookmark-modal-input" id="favoriteUrlInput" placeholder="网址" />
+                        <input type="text" class="bookmark-modal-input" id="favoriteNameInput"
+                            placeholder="名称（可选）" />
+                        <div class="bookmark-modal-buttons">
+                            <button class="bookmark-modal-btn secondary" id="addFavoriteCancel">取消</button>
+                            <button class="bookmark-modal-btn primary" id="addFavoriteSave">添加</button>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div class="bookmark-modal" id="bookmarkModal" style="display: none;">
+                    <div class="bookmark-modal-content">
+                        <h3>添加书签</h3>
+                        <input type="text" class="bookmark-modal-input" id="bookmarkUrlInput" placeholder="网址"
+                            />
+                        <input type="text" class="bookmark-modal-input" id="bookmarkNameInput"
+                            placeholder="书签名称" />
+                        <div class="bookmark-modal-buttons">
+                            <button class="bookmark-modal-btn secondary" id="bookmarkCancel">取消</button>
+                            <button class="bookmark-modal-btn primary" id="bookmarkSave">保存</button>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div class="bookmark-modal" id="shortcutEditModal" style="display: none;">
+                    <div class="bookmark-modal-content">
+                        <h3>编辑键盘快捷键</h3>
+                        <p style="font-size:13px; color:var(--tx2); margin-bottom:16px;">按 <b>Alt + 按键</b> 设置新的快捷键。</p>
+
+                        <div style="background:var(--bg3); padding:20px; border-radius:10px; border:1px solid var(--bd); text-align:center; font-size:20px; font-weight:600; color:var(--ac); font-family:var(--mono); min-height:80px; display:flex; align-items:center; justify-content:center; margin-bottom: 20px;"
+                            id="shortcutDisplay">
+                            <span style="opacity: 0.5; font-size: 14px; font-weight: 400; color: var(--tx3);">等待输入…</span>
+                        </div>
+
+                        <div class="bookmark-modal-buttons">
+                            <button class="bookmark-modal-btn secondary" id="shortcutCancel">取消</button>
+                            <button class="bookmark-modal-btn primary" id="shortcutSave" >保存快捷键</button>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div class="context-menu" id="contextMenu">
+                    <button class="context-menu-item" id="ctxNewTab">
+                        <i class="fas fa-plus"></i>
+                        <span>新标签页</span>
+                    </button>
+                    <button class="context-menu-item" id="ctxReload">
+                        <i class="fas fa-rotate-right"></i>
+                        <span>刷新</span>
+                    </button>
+                    <div class="context-menu-separator"></div>
+                    <button class="context-menu-item" id="ctxBack">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>后退</span>
+                    </button>
+                    <button class="context-menu-item" id="ctxForward">
+                        <i class="fas fa-arrow-right"></i>
+                        <span>前进</span>
+                    </button>
+                    <div class="context-menu-separator"></div>
+                    <button class="context-menu-item" id="ctxBookmark">
+                        <i class="far fa-bookmark"></i>
+                        <span>收藏此页</span>
+                    </button>
+                    <button class="context-menu-item" id="ctxCopyUrl">
+                        <i class="fas fa-link"></i>
+                        <span>复制网址</span>
+                    </button>
+                    <div class="context-menu-separator"></div>
+                    <button class="context-menu-item" id="ctxSettings">
+                        <i class="fas fa-gear"></i>
+                        <span>设置</span>
+                    </button>
+                    <button class="context-menu-item danger" id="ctxCloseTab">
+                        <i class="fas fa-xmark"></i>
+                        <span>关闭标签页</span>
+                    </button>
+                </div>
+
+                <!-- Tab right-click context menu -->
+                <div class="tab-context-menu" id="tabContextMenu">
+                    <button class="tab-ctx-item" id="tabCtxReload">
+                        <i class="fas fa-rotate-right"></i>
+                        <span>刷新标签页</span>
+                    </button>
+                    <button class="tab-ctx-item" id="tabCtxMute">
+                        <i class="fas fa-volume-xmark"></i>
+                        <span>静音标签页</span>
+                    </button>
+                    <div class="tab-ctx-separator"></div>
+                    <button class="tab-ctx-item danger" id="tabCtxClose">
+                        <i class="fas fa-xmark"></i>
+                        <span>关闭标签页</span>
+                    </button>
+                </div>
+
+                
+                <div class="site-info-popup" id="siteInfoPopup">
+                    <div class="site-info-box">
+                        <div class="site-info-header">
+                            <div class="site-info-icon" id="siteInfoIcon">
+                                <i class="fas fa-lock" id="siteInfoIconI"></i>
+                            </div>
+                            <div>
+                                <div class="site-info-title" id="siteInfoTitle">连接信息</div>
+                                <div class="site-info-subtitle" id="siteInfoSubtitle"></div>
+                            </div>
+                        </div>
+                        <div class="site-info-body">
+                            <div class="site-info-row">
+                                <i class="fas fa-globe"></i>
+                                <span class="site-info-row-label">主机</span>
+                                <span class="site-info-row-value" id="siteInfoHost">-</span>
+                            </div>
+                            <div class="site-info-row">
+                                <i class="fas fa-lock"></i>
+                                <span class="site-info-row-label">协议</span>
+                                <span class="site-info-row-value" id="siteInfoProtocol">-</span>
+                            </div>
+                            <div class="site-info-row">
+                                <i class="fas fa-shield-halved"></i>
+                                <span class="site-info-row-label">广告拦截</span>
+                                <span class="site-info-row-value" id="siteInfoBlock">-</span>
+                            </div>
+                            <div class="site-info-row">
+                                <i class="fas fa-cookie-bite"></i>
+                                <span class="site-info-row-label">Cookie</span>
+                                <span class="site-info-row-value" id="siteInfoCookies">-</span>
+                            </div>
+                            <div class="site-info-row">
+                                <i class="fas fa-database"></i>
+                                <span class="site-info-row-label">缓存</span>
+                                <span class="site-info-row-value" id="siteInfoCache">-</span>
+                            </div>
+                        </div>
+                        <div class="site-info-footer">
+                            <button class="site-info-btn" id="siteInfoCopy">
+                                <i class="fas fa-copy"></i> Copy URL
+                            </button>
+                            <button class="site-info-btn" id="siteInfoClose">
+                                <i class="fas fa-times"></i> Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div class="bookmark-modal" id="metricsModal" style="display:none;">
+                    <div class="bookmark-modal-content"
+                        style="width:780px;max-width:94vw;border:1px solid rgba(100,210,255,0.25);">
+                        <h3><i class="fas fa-chart-simple"
+                                style="margin-right:8px;font-size:14px;color:var(--ac);opacity:0.8;"></i>浏览器指标
+                        </h3>
+                        <div id="metricsBody" style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px;">
+                        </div>
+                        <div class="bookmark-modal-buttons" style="padding-top:4px;">
+                            <button class="bookmark-modal-btn secondary" id="metricsRefresh"><i
+                                    class="fas fa-rotate-right" style="margin-right:6px;"></i>刷新</button>
+                            <button class="bookmark-modal-btn primary" id="metricsClose">关闭</button>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div class="newtab" id="settingsPage" style="display:none;">
+                    <div class="nt-bg"
+                        style="background: linear-gradient(135deg, #0d0f12 0%, #1a1f2e 50%, #0d0f12 100%);"></div>
+                    <div class="nt-overlay"
+                        style="background: linear-gradient(180deg, rgba(20,23,27,0.85), rgba(13,15,18,0.95));">
+                    </div>
+                    
+                    <div style="position:relative; height:100%; display:flex; flex-direction:row;">
+
+                        
+                        <div
+                            style="width:200px; min-width:200px; height:100%; background:rgba(13,15,18,0.7); border-right:1px solid var(--bd); display:flex; flex-direction:column; padding:24px 0; backdrop-filter:blur(8px);">
+
+                            
+                            <nav style="display:flex; flex-direction:column; gap:2px; padding:0 12px; flex:1;">
+                                <button class="settings-nav-item active" data-section="connection"><i
+                                        class="fas fa-network-wired"></i><span>连接</span></button>
+                                <button class="settings-nav-item" data-section="search"><i
+                                        class="fas fa-magnifying-glass"></i><span>搜索</span></button>
+                                <button class="settings-nav-item" data-section="privacy"><i
+                                        class="fas fa-shield-halved"></i><span>隐私</span></button>
+                                <button class="settings-nav-item" data-section="cache"><i
+                                        class="fas fa-database"></i><span>缓存</span></button>
+                                <button class="settings-nav-item" data-section="filesandmedia"><i
+                                        class="fas fa-photo-film"></i><span>文件与媒体</span></button>
+                                <button class="settings-nav-item" data-section="appearance"><i
+                                        class="fas fa-palette"></i><span>外观</span></button>
+                                <button class="settings-nav-item" data-section="homescreen"><i
+                                        class="fas fa-house"></i><span>主页</span></button>
+                                <button class="settings-nav-item" data-section="shortcuts"><i
+                                        class="fas fa-keyboard"></i><span>快捷键</span></button>
+                                <button class="settings-nav-item" data-section="language"><i
+                                        class="fas fa-language"></i><span>语言</span></button>
+                                <button class="settings-nav-item" data-section="fallback"><i
+                                        class="fas fa-rotate-left"></i><span>回退</span></button>
+                                <hr style="margin-top:auto; border:none; border-top:1px solid var(--bd); margin-bottom:4px; margin-left:4px; margin-right:4px;" />
+                                <button class="settings-nav-item" data-section="tutorial"><i
+                                        class="fas fa-map"></i><span>教程</span></button>
+                                <button class="settings-nav-item" data-section="about"><i
+                                        class="fas fa-info-circle"></i><span>关于</span></button>
+                            </nav>
+                        </div>
+
+                        
+                        <div
+                            style="flex:1; overflow-y:auto; padding:40px 48px; display:flex; flex-direction:column; gap:32px;">
+
+
+                            
+                            <div class="settings-section" data-section="connection">
+                                <div class="settings-card">
+                                    <div class="settings-card-head"><i class="fas fa-network-wired"></i> WISP 服务器
+                                    </div>
+                                    <div class="settings-card-body">
+                                        <label class="settings-label">WebSocket 地址</label>
+                                        <div style="display:flex; gap:8px;">
+                                            <input type="text" class="settings-input" id="settingsWispInput" value=""
+                                                placeholder="wss://..." />
+                                            <button class="settings-btn-icon" id="settingsWispSave" title="保存"><i
+                                                    class="fas fa-check"></i></button>
+                                            <button class="settings-btn-icon" id="settingsWispReset"
+                                                title="重置为默认"><i class="fas fa-rotate-left"></i></button>
+                                        </div>
+                                        <div class="settings-hint" id="settingsWispStatus">当前服务器显示在上方
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="settings-card">
+                                    <div class="settings-card-head"><i class="fas fa-sliders"></i> 并发请求
+                                    </div>
+                                    <div class="settings-card-body">
+                                        <div class="settings-switch-row" style="align-items:center;">
+                                            <div style="flex:1;">
+                                                <div class="settings-switch-label">空闲线程</div>
+                                                <div class="settings-hint">页面加载完成后的最大并发请求数（默认：3）。数值越低，后台 CPU 占用越少。</div>
+                                            </div>
+                                            <div style="display:flex;align-items:center;gap:6px;">
+                                                <button class="settings-btn-icon" id="settingsIdleMinus"
+                                                    style="width:28px;height:28px;font-size:14px;">−</button>
+                                                <span id="settingsIdleVal"
+                                                    style="font-family:var(--mono);font-size:14px;font-weight:600;color:var(--tx);min-width:20px;text-align:center;">3</span>
+                                                <button class="settings-btn-icon" id="settingsIdlePlus"
+                                                    style="width:28px;height:28px;font-size:14px;">+</button>
+                                            </div>
+                                        </div>
+                                        <div class="settings-switch-row" style="align-items:center;">
+                                            <div style="flex:1;">
+                                                <div class="settings-switch-label">活跃线程</div>
+                                                <div class="settings-hint">页面加载期间的最大并发请求数（默认：6）。数值越高加载越快，但 CPU 占用更多。</div>
+                                            </div>
+                                            <div style="display:flex;align-items:center;gap:6px;">
+                                                <button class="settings-btn-icon" id="settingsActiveMinus"
+                                                    style="width:28px;height:28px;font-size:14px;">−</button>
+                                                <span id="settingsActiveVal"
+                                                    style="font-family:var(--mono);font-size:14px;font-weight:600;color:var(--tx);min-width:20px;text-align:center;">6</span>
+                                                <button class="settings-btn-icon" id="settingsActivePlus"
+                                                    style="width:28px;height:28px;font-size:14px;">+</button>
+                                            </div>
+                                        </div>
+                                        <hr style="border:none;border-top:1px solid var(--bd);margin:12px 0 10px;" />
+                                        <div style="display:flex;justify-content:flex-end;gap:8px;">
+                                            <button class="settings-btn-icon" id="settingsThreadsSave" title="保存"><i
+                                                    class="fas fa-check"></i></button>
+                                            <button class="settings-btn-icon" id="settingsThreadsReset"
+                                                title="重置为默认值"><i class="fas fa-rotate-left"></i></button>
+                                        </div>
+                                        <div class="settings-hint" id="settingsThreadsStatus" style="margin-top:6px;">
+                                        </div>
+                                    </div>
+                                </div>
+                            
+
+                                <div class="settings-card">
+                                    <div class="settings-card-head"><i class="fas fa-ban"></i> WebRTC 拦截</div>
+                                    <div class="settings-card-body">
+                                        <div class="settings-switch-row">
+                                            <div>
+                                                <div class="settings-switch-label">拦截 WebRTC 连接</div>
+                                                <div class="settings-hint">阻止网站建立绕过 WISP 隧道的直接点对点连接（可能暴露你的真实 IP）。默认关闭 — 开启后可能导致视频通话和实时应用失效。</div>
+                                            </div>
+                                            <div class="settings-switch" id="webrtcBlockSwitch">
+                                                <div class="settings-switch-track"><div class="settings-switch-thumb"></div></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="settings-card">
+                                    <div class="settings-card-head"><i class="fas fa-shield-halved"></i> 智能请求头</div>
+                                    <div class="settings-card-body">
+                                        <div class="settings-switch-row">
+                                            <div>
+                                                <div class="settings-switch-label">伪造 Sec-Fetch 与 Referer 请求头</div>
+                                                <div class="settings-hint">根据请求上下文合成正确的 <code>Sec-Fetch-Site</code>、<code>Sec-Fetch-Mode</code>、<code>Sec-Fetch-Dest</code> 和 <code>Referer</code> 请求头。修复因 fetch 元数据不正确而拒绝请求的 CDN 和 API。</div>
+                                            </div>
+                                            <div class="settings-switch on" id="mediaHeadersSwitch">
+                                                <div class="settings-switch-track"><div class="settings-switch-thumb"></div></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            
+                            <div class="settings-section" data-section="search" style="display:none;">
+                                <div class="settings-card">
+                                    <div class="settings-card-head"><i class="fas fa-magnifying-glass"></i> 默认搜索引擎</div>
+                                    <div class="settings-card-body">
+                                        <div class="settings-toggle-row" id="settingsEngineRows"></div>
+                                    </div>
+                                </div>
+                                <div class="settings-card">
+                                    <div class="settings-card-head"><i class="fas fa-spell-check"></i> Spellcheck</div>
+                                    <div class="settings-card-body">
+                                        <div class="settings-switch-row">
+                                            <div>
+                                                <div class="settings-switch-label">启用拼写检查</div>
+                                                <div class="settings-hint">在输入框和文本域中检查拼写（如搜索栏、表单）。</div>
+                                            </div>
+                                            <div class="settings-switch" id="settingsSpellSwitch">
+                                                <div class="settings-switch-track">
+                                                    <div class="settings-switch-thumb"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="settings-card">
+                                    <div class="settings-card-head"><i class="fas fa-image"></i> 标签页图标</div>
+                                    <div class="settings-card-body">
+                                        <div class="settings-switch-row">
+                                            <div>
+                                                <div class="settings-switch-label">通过 WISP 代理图标</div>
+                                                <div class="settings-hint">通过 WISP 服务器获取标签页图标，而不是使用 Google 的图标服务。更私密，但略慢。</div>
+                                            </div>
+                                            <div class="settings-switch" id="faviconProxySwitch">
+                                                <div class="settings-switch-track"><div class="settings-switch-thumb"></div></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            
+                            <div class="settings-section" data-section="privacy" style="display:none;">
+                                <div class="settings-card">
+                                    <div class="settings-card-head"><i class="fas fa-shield-halved"></i> Privacy &amp;
+                                        Blocking</div>
+                                    <div class="settings-card-body">
+                                        <div class="settings-switch-row">
+                                            <div>
+                                                <div class="settings-switch-label">广告与跟踪器拦截</div>
+                                                <div class="settings-hint">拦截分析、广告和跟踪脚本</div>
+                                            </div>
+                                            <div class="settings-switch" id="settingsBlockSwitch">
+                                                <div class="settings-switch-track">
+                                                    <div class="settings-switch-thumb"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="settings-card">
+                                    <div class="settings-card-head"><i class="fas fa-user-secret"></i> User-Agent 伪装</div>
+                                    <div class="settings-card-body">
+                                        <div style="margin-bottom: 16px;">
+                                            <div class="settings-switch-label">请求 User-Agent</div>
+                                            <div class="settings-hint">作为所有代理请求的 <code>User-Agent</code> HTTP 请求头发送。</div>
+                                            <input type="text" class="settings-input" id="settingsRequestUA"
+                                                style="width:100%; margin-top:8px; font-family:var(--mono); font-size:11px;"
+                                                placeholder="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36" />
+                                        </div>
+                                        <div style="margin-bottom: 16px;">
+                                            <div class="settings-switch-label">页面 navigator.userAgent</div>
+                                            <div class="settings-hint">覆盖加载页面内的 <code>navigator.userAgent</code>。</div>
+                                            <input type="text" class="settings-input" id="settingsPageUA"
+                                                style="width:100%; margin-top:8px; font-family:var(--mono); font-size:11px;"
+                                                placeholder="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36" />
+                                        </div>
+                                        <div style="display:flex; justify-content:flex-end; gap:8px;">
+                                            <button class="settings-btn-icon" id="settingsResetUA" title="重置为默认值" style="opacity:0.7;"><i class="fas fa-rotate-left"></i></button>
+                                            <button class="settings-btn-icon" id="settingsSaveUA" title="保存 User-Agent"><i class="fas fa-check"></i></button>
+                                        </div>
+                                        <div id="settingsUAStatus" style="text-align:right; font-size:11px; color:var(--ok); margin-top:6px; min-height:16px;"></div>
+                                    </div>
+                                </div>
+
+                                <div class="settings-card">
+                                    <div class="settings-card-head"><i class="fas fa-filter"></i> Blocklist &amp;
+                                        Filters</div>
+                                    <div class="settings-card-body">
+                                        <div style="margin-bottom: 16px;">
+                                            <div class="settings-switch-label">自定义过滤规则</div>
+                                            <div class="settings-hint">输入要隐藏的 CSS 选择器（每行一个）。
+                                                Example: <code>.ad-banner</code></div>
+                                        </div>
+                                        <textarea class="settings-input" id="settingsCustomFilters"
+                                            style="width: 100%; height: 300px; font-family: var(--mono); font-size: 11px; resize: vertical;"
+                                            placeholder=".ad-box&amp;#10;#sidebar-ads&amp;#10;iframe[src*='doubleclick']"></textarea>
+                                        <div
+                                            style="margin-top: 12px; display: flex; justify-content: flex-end; gap: 8px;">
+                                            <button class="settings-btn-icon" id="settingsSaveFilters"
+                                                title="保存规则"><i class="fas fa-check"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            
+                            <div class="settings-section" data-section="cache" style="display:none;">
+                                <div class="settings-card">
+                                    <div class="settings-card-head"><i class="fas fa-layer-group"></i> 标签页缓存
+                                    </div>
+                                    <div class="settings-card-body">
+                                        <div class="settings-switch-row">
+                                            <div>
+                                                <div class="settings-switch-label">在后台保持标签页加载
+                                                </div>
+                                                <div class="settings-hint">启用后，切换标签页不会重新加载。关闭可节省内存。</div>
+                                            </div>
+                                            <div class="settings-switch on" id="settingsTabCacheSwitch">
+                                                <div class="settings-switch-track">
+                                                    <div class="settings-switch-thumb"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="settings-card">
+                                    <div class="settings-card-head"><i class="fas fa-database"></i> 资源缓存
+                                    </div>
+                                    <div class="settings-card-body">
+                                        <div
+                                            style="display:flex; align-items:center; justify-content:space-between; gap: 12px; flex-wrap: wrap;">
+                                            <div>
+                                                <div class="settings-switch-label">已缓存资源</div>
+                                                <div class="settings-hint" id="settingsCacheSize">计算中…
+                                                </div>
+                                            </div>
+                                            <div style="display: flex; gap: 8px;">
+                                                <button class="settings-btn-danger" id="settingsClearCache"><i
+                                                        class="fas fa-trash"></i> 清空缓存</button>
+                                                <button class="settings-btn-danger" id="settingsResetEverything"
+                                                    style="background: rgba(255, 149, 149, 0.15); border-color: var(--err);"><i
+                                                        class="fas fa-triangle-exclamation"></i> 全部重置</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            
+                            <div class="settings-section" data-section="appearance" style="display:none;">
+                                <div class="settings-card">
+                                    <div class="settings-card-head"><i class="fas fa-text-width"></i> 字体大小
+                                    </div>
+                                    <div class="settings-card-body">
+                                        <div
+                                            style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+                                            <div class="settings-hint">调整整个界面的文字大小
+                                            </div>
+                                            <button class="settings-btn-icon" id="settingsFontReset"
+                                                title="重置为默认"><i class="fas fa-rotate-left"></i></button>
+                                        </div>
+                                        <input type="range" class="settings-slider" id="settingsFontSlider" min="0"
+                                            max="10" step="1" value="5" />
+                                        <div style="display:flex; justify-content:center; margin-top:8px;">
+                                            <span style="font-size:11px; color:var(--tx3);">Default</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="settings-card">
+                                    <div class="settings-card-head"><i class="fas fa-arrows-left-right"></i> 面板宽度</div>
+                                    <div class="settings-card-body">
+                                        <div class="settings-switch-row">
+                                            <div>
+                                                <div class="settings-switch-label">记住面板宽度</div>
+                                                <div class="settings-hint">When enabled, panel widths are saved.
+                                                    When , they reset to default on close.</div>
+                                            </div>
+                                            <div class="settings-switch on" id="settingsPanelWidthSwitch">
+                                                <div class="settings-switch-track">
+                                                    <div class="settings-switch-thumb"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="settings-card">
+                                    <div class="settings-card-head"><i class="fas fa-table-columns"></i> 面板位置
+                                    </div>
+                                    <div class="settings-card-body">
+                                        <div class="settings-switch-row">
+                                            <div>
+                                                <div class="settings-switch-label">面板位于左侧</div>
+                                                <div class="settings-hint">将日志和元素面板移到浏览器窗口左侧。</div>
+                                            </div>
+                                            <div class="settings-switch" id="settingsPanelsLeftSwitch">
+                                                <div class="settings-switch-track">
+                                                    <div class="settings-switch-thumb"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="settings-card">
+                                    <div class="settings-card-head"><i class="fas fa-expand"></i> 启动时全屏
+                                    </div>
+                                    <div class="settings-card-body">
+                                        <div class="settings-switch-row">
+                                            <div>
+                                                <div class="settings-switch-label">启动进入全屏</div>
+                                                <div class="settings-hint">打开 Gust 后，首次点击或按键时自动进入全屏。</div>
+                                            </div>
+                                            <div class="settings-switch on" id="settingsAutoFullscreenSwitch">
+                                                <div class="settings-switch-track">
+                                                    <div class="settings-switch-thumb"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            
+                            <div class="settings-section" data-section="shortcuts" style="display:none;">
+                                <div class="settings-card">
+                                    <div class="settings-card-head"><i class="fas fa-keyboard"></i> 键盘快捷键</div>
+                                    <div class="settings-card-body">
+                                        <div class="settings-switch-row" style="align-items:center;">
+                                            <div style="flex:1;">
+                                                <div class="settings-switch-label">启用键盘快捷键</div>
+                                                <div class="settings-hint">When off, all Alt + key shortcuts are .</div>
+                                            </div>
+                                            <div class="settings-switch on" id="settingsShortcutsEnabledSwitch">
+                                                <div class="settings-switch-track">
+                                                    <div class="settings-switch-thumb"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="shortcutsList" style="display:flex; flex-direction:column; gap:10px; font-size:12px; margin-top:10px;">
+                                            <div style="height:1px; background:var(--bd); margin-bottom:2px;"></div>
+                                            <div
+                                                style="display:flex; justify-content:space-between; align-items:center;">
+                                                <span style="color:var(--tx2);">新标签页</span>
+                                                <div style="display:flex; gap:8px; align-items:center;">
+                                                    <code
+                                                        style="background:var(--bg3); padding:4px 10px; border-radius:4px; color:var(--tx); font-size:11px; border:1px solid var(--bd);">Alt + T</code>
+                                                    <button class="settings-btn-icon" style="width:28px; height:28px;"
+                                                        title="编辑快捷键"><i class="fas fa-pen"
+                                                            style="font-size:11px;"></i></button>
+                                                    <button class="settings-btn-icon" style="width:28px; height:28px;"
+                                                        title="重置快捷键"><i class="fas fa-rotate-left"
+                                                            style="font-size:11px;"></i></button>
+                                                </div>
+                                            </div>
+                                            <div
+                                                style="display:flex; justify-content:space-between; align-items:center;">
+                                                <span style="color:var(--tx2);">关闭标签页</span>
+                                                <div style="display:flex; gap:8px; align-items:center;">
+                                                    <code
+                                                        style="background:var(--bg3); padding:4px 10px; border-radius:4px; color:var(--tx); font-size:11px; border:1px solid var(--bd);">Alt + W</code>
+                                                    <button class="settings-btn-icon" style="width:28px; height:28px;"
+                                                        title="编辑快捷键"><i class="fas fa-pen"
+                                                            style="font-size:11px;"></i></button>
+                                                    <button class="settings-btn-icon" style="width:28px; height:28px;"
+                                                        title="重置快捷键"><i class="fas fa-rotate-left"
+                                                            style="font-size:11px;"></i></button>
+                                                </div>
+                                            </div>
+                                            <div
+                                                style="display:flex; justify-content:space-between; align-items:center;">
+                                                <span style="color:var(--tx2);">刷新页面</span>
+                                                <div style="display:flex; gap:8px; align-items:center;">
+                                                    <code
+                                                        style="background:var(--bg3); padding:4px 10px; border-radius:4px; color:var(--tx); font-size:11px; border:1px solid var(--bd);">Alt + R</code>
+                                                    <button class="settings-btn-icon" style="width:28px; height:28px;"
+                                                        title="编辑快捷键"><i class="fas fa-pen"
+                                                            style="font-size:11px;"></i></button>
+                                                    <button class="settings-btn-icon" style="width:28px; height:28px;"
+                                                        title="重置快捷键"><i class="fas fa-rotate-left"
+                                                            style="font-size:11px;"></i></button>
+                                                </div>
+                                            </div>
+                                            <div
+                                                style="display:flex; justify-content:space-between; align-items:center;">
+                                                <span style="color:var(--tx2);">收藏此页</span>
+                                                <div style="display:flex; gap:8px; align-items:center;">
+                                                    <code
+                                                        style="background:var(--bg3); padding:4px 10px; border-radius:4px; color:var(--tx); font-size:11px; border:1px solid var(--bd);">Alt + D</code>
+                                                    <button class="settings-btn-icon" style="width:28px; height:28px;"
+                                                        title="编辑快捷键"><i class="fas fa-pen"
+                                                            style="font-size:11px;"></i></button>
+                                                    <button class="settings-btn-icon" style="width:28px; height:28px;"
+                                                        title="重置快捷键"><i class="fas fa-rotate-left"
+                                                            style="font-size:11px;"></i></button>
+                                                </div>
+                                            </div>
+                                            <div
+                                                style="display:flex; justify-content:space-between; align-items:center;">
+                                                <span style="color:var(--tx2);">聚焦地址栏</span>
+                                                <div style="display:flex; gap:8px; align-items:center;">
+                                                    <code
+                                                        style="background:var(--bg3); padding:4px 10px; border-radius:4px; color:var(--tx); font-size:11px; border:1px solid var(--bd);">Alt + L</code>
+                                                    <button class="settings-btn-icon" style="width:28px; height:28px;"
+                                                        title="编辑快捷键"><i class="fas fa-pen"
+                                                            style="font-size:11px;"></i></button>
+                                                    <button class="settings-btn-icon" style="width:28px; height:28px;"
+                                                        title="重置快捷键"><i class="fas fa-rotate-left"
+                                                            style="font-size:11px;"></i></button>
+                                                </div>
+                                            </div>
+                                            <div
+                                                style="display:flex; justify-content:space-between; align-items:center;">
+                                                <span style="color:var(--tx2);">设置</span>
+                                                <div style="display:flex; gap:8px; align-items:center;">
+                                                    <code
+                                                        style="background:var(--bg3); padding:4px 10px; border-radius:4px; color:var(--tx); font-size:11px; border:1px solid var(--bd);">Alt + ,</code>
+                                                    <button class="settings-btn-icon" style="width:28px; height:28px;"
+                                                        title="编辑快捷键"><i class="fas fa-pen"
+                                                            style="font-size:11px;"></i></button>
+                                                    <button class="settings-btn-icon" style="width:28px; height:28px;"
+                                                        title="重置快捷键"><i class="fas fa-rotate-left"
+                                                            style="font-size:11px;"></i></button>
+                                                </div>
+                                            </div>
+                                            <div
+                                                style="display:flex; justify-content:space-between; align-items:center;">
+                                                <span style="color:var(--tx2);">切换日志</span>
+                                                <div style="display:flex; gap:8px; align-items:center;">
+                                                    <code
+                                                        style="background:var(--bg3); padding:4px 10px; border-radius:4px; color:var(--tx); font-size:11px; border:1px solid var(--bd);">Alt + G</code>
+                                                    <button class="settings-btn-icon" style="width:28px; height:28px;"
+                                                        title="编辑快捷键"><i class="fas fa-pen"
+                                                            style="font-size:11px;"></i></button>
+                                                    <button class="settings-btn-icon" style="width:28px; height:28px;"
+                                                        title="重置快捷键"><i class="fas fa-rotate-left"
+                                                            style="font-size:11px;"></i></button>
+                                                </div>
+                                            </div>
+                                            <div
+                                                style="display:flex; justify-content:space-between; align-items:center;">
+                                                <span style="color:var(--tx2);">元素检查器</span>
+                                                <div style="display:flex; gap:8px; align-items:center;">
+                                                    <code class="shortcut-display" data-shortcut="inspector"
+                                                        style="background:var(--bg3); padding:4px 10px; border-radius:4px; color:var(--tx); font-size:11px; border:1px solid var(--bd);">Alt + I</code>
+                                                    <button class="settings-btn-icon" style="width:28px; height:28px;"
+                                                        title="编辑快捷键"><i class="fas fa-pen"
+                                                            style="font-size:11px;"></i></button>
+                                                    <button class="settings-btn-icon" style="width:28px; height:28px;"
+                                                        title="重置快捷键"><i class="fas fa-rotate-left"
+                                                            style="font-size:11px;"></i></button>
+                                                </div>
+                                            </div>
+                                            <div
+                                                style="display:flex; justify-content:space-between; align-items:center;">
+                                                <span style="color:var(--tx2);">最近历史</span>
+                                                <div style="display:flex; gap:8px; align-items:center;">
+                                                    <code class="shortcut-display" data-shortcut="history"
+                                                        style="background:var(--bg3); padding:4px 10px; border-radius:4px; color:var(--tx); font-size:11px; border:1px solid var(--bd);">Alt + H</code>
+                                                    <button class="settings-btn-icon" style="width:28px; height:28px;"
+                                                        title="编辑快捷键"><i class="fas fa-pen"
+                                                            style="font-size:11px;"></i></button>
+                                                    <button class="settings-btn-icon" style="width:28px; height:28px;"
+                                                        title="重置快捷键"><i class="fas fa-rotate-left"
+                                                            style="font-size:11px;"></i></button>
+                                                </div>
+                                            </div>
+                                            <div
+                                                style="display:flex; justify-content:space-between; align-items:center;">
+                                                <span style="color:var(--tx2);">指标</span>
+                                                <div style="display:flex; gap:8px; align-items:center;">
+                                                    <code class="shortcut-display" data-shortcut="metrics"
+                                                        style="background:var(--bg3); padding:4px 10px; border-radius:4px; color:var(--tx); font-size:11px; border:1px solid var(--bd);">Alt + M</code>
+                                                    <button class="settings-btn-icon" style="width:28px; height:28px;"
+                                                        title="编辑快捷键"><i class="fas fa-pen"
+                                                            style="font-size:11px;"></i></button>
+                                                    <button class="settings-btn-icon" style="width:28px; height:28px;"
+                                                        title="重置快捷键"><i class="fas fa-rotate-left"
+                                                            style="font-size:11px;"></i></button>
+                                                </div>
+                                            </div>
+                                            <div
+                                                style="display:flex; justify-content:space-between; align-items:center;">
+                                                <span style="color:var(--tx2);">切换全屏</span>
+                                                <div style="display:flex; gap:8px; align-items:center;">
+                                                    <code class="shortcut-display" data-shortcut="fullscreen"
+                                                        style="background:var(--bg3); padding:4px 10px; border-radius:4px; color:var(--tx); font-size:11px; border:1px solid var(--bd);">Alt + F</code>
+                                                    <button class="settings-btn-icon" style="width:28px; height:28px;"
+                                                        title="编辑快捷键"><i class="fas fa-pen"
+                                                            style="font-size:11px;"></i></button>
+                                                    <button class="settings-btn-icon" style="width:28px; height:28px;"
+                                                        title="重置快捷键"><i class="fas fa-rotate-left"
+                                                            style="font-size:11px;"></i></button>
+                                                </div>
+                                            </div>
+                                        </div><!-- /#shortcutsList -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            
+                            <div class="settings-section" data-section="homescreen" style="display:none;">
+                                <div class="settings-card">
+                                    <div class="settings-card-head"><i class="fas fa-bookmark"></i> 书签栏
+                                    </div>
+                                    <div class="settings-card-body">
+                                        <div class="settings-switch-row">
+                                            <div>
+                                                <div class="settings-switch-label">显示书签栏</div>
+                                                <div class="settings-hint">始终在地址栏下方显示书签栏</div>
+                                            </div>
+                                            <div class="settings-switch on" id="settingsBookmarksBarSwitch">
+                                                <div class="settings-switch-track">
+                                                    <div class="settings-switch-thumb"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="settings-card">
+                                    <div class="settings-card-head"><i class="fas fa-image"></i> 新标签页壁纸
+                                    </div>
+                                    <div class="settings-card-body">
+                                        <div
+                                            style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+                                            <div>
+                                                <div class="settings-switch-label">背景图片</div>
+                                                <div class="settings-hint" id="settingsWallpaperStatus">Loading...
+                                                </div>
+                                            </div>
+                                            <div style="display:flex; gap:8px;">
+                                                <button class="settings-btn-icon" id="settingsWallpaperChange"
+                                                    title="更改壁纸"><i class="fas fa-image"></i></button>
+                                                <button class="settings-btn-icon" id="settingsWallpaperReset"
+                                                    title="重置为默认渐变"><i
+                                                        class="fas fa-rotate-left"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="settings-card">
+                                    <div class="settings-card-head"><i class="fas fa-clock"></i> 主页时钟
+                                    </div>
+                                    <div class="settings-card-body">
+                                        <div class="settings-switch-row">
+                                            <div>
+                                                <div class="settings-switch-label">在新标签页上显示时钟</div>
+                                                <div class="settings-hint">在主页上显示当前时间和日期</div>
+                                            </div>
+                                            <div class="settings-switch on" id="settingsClockSwitch">
+                                                <div class="settings-switch-track">
+                                                    <div class="settings-switch-thumb"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="settings-switch-row">
+                                            <div>
+                                                <div class="settings-switch-label">24 小时制</div>
+                                                <div class="settings-hint">以 24 小时制显示时间（例如 14:30 而非 2:30 PM）</div>
+                                            </div>
+                                            <div class="settings-switch" id="settings24hrSwitch">
+                                                <div class="settings-switch-track">
+                                                    <div class="settings-switch-thumb"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            
+                            <div class="settings-section" data-section="language" style="display:none;">
+                                <div class="settings-card">
+                                    <div class="settings-card-head"><i class="fas fa-language"></i> Language</div>
+                                    <div class="settings-card-body">
+                                        <div style="margin-bottom: 16px;">
+                                            <div class="settings-switch-label">首选语言</div>
+                                            <div class="settings-hint">选择界面和拼写检查所用的语言（若支持）。</div>
+                                        </div>
+                                        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                                            <div class="locale-dropdown-wrap" style="width:420px; flex-shrink:0; position:relative;">
+                                                <input type="hidden" id="settingsLanguage" value="" />
+                                                <button type="button" class="locale-dropdown-trigger settings-input" id="settingsLanguageTrigger" style="text-align:left; cursor:pointer; display:flex; align-items:center; justify-content:space-between;">
+                                                    <span class="locale-dropdown-label">系统默认</span>
+                                                    <i class="fas fa-chevron-down" style="font-size:10px; opacity:0.7;"></i>
+                                                </button>
+                                                <div class="locale-dropdown-panel" id="settingsLanguagePanel" style="display:none;">
+                                                    <input type="text" class="locale-dropdown-filter settings-input" id="settingsLanguageFilter" placeholder="搜索语言…" style="margin:6px;" />
+                                                    <div class="locale-dropdown-list" id="settingsLanguageList"></div>
+                                                </div>
+                                            </div>
+                                            <button class="settings-btn-icon" id="settingsLanguageSave" title="保存"><i class="fas fa-check"></i></button>
+                                        </div>
+                                        <div class="settings-hint" id="settingsLanguageStatus" style="margin-top:8px;"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            
+                            <div class="settings-section" data-section="tutorial-page" style="display:none;">
+                                <div class="settings-card">
+                                    <div class="settings-card-head"><i class="fas fa-map"></i> 交互式导览</div>
+                                    <div class="settings-card-body">
+                                        <div class="settings-hint" style="margin-bottom:14px;">用 16 个步骤带你了解导航、搜索、书签、广告拦截、指标、浏览器日志、页面检查器、标签页和新标签页。不到一分钟。</div>
+                                        <div style="display:flex;gap:20px;margin-bottom:18px;">
+                                            <span
+                                                style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--tx2);"><i
+                                                    class="fas fa-list-check" style="color:var(--ac);"></i> 16
+                                                steps</span>
+                                            <span
+                                                style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--tx2);"><i
+                                                    class="fas fa-clock" style="color:var(--ac);"></i> 不到一分钟</span>
+                                        </div>
+                                        <button id="restartTutorialBtn"
+                                            style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:10px 16px;background:var(--ac);color:#000;font-weight:600;font-size:13px;border:none;border-radius:8px;cursor:pointer;transition:opacity .15s;"
+                                            onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">
+                                            <i class="fas fa-play"></i> 开始导览
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="settings-section" data-section="about" style="display:none;">
+                                <div class="settings-card">
+                                    <div class="settings-card-head"><i class="fas fa-info-circle"></i> 关于 Gust
+                                    </div>
+                                    <div class="settings-card-body">
+                                        <div
+                                            style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px;">
+                                            <div
+                                                style="color:var(--ac); font-weight:700; font-size:18px; display:flex; align-items:center; gap:10px;">
+                                                <i class="fas fa-wind" style="font-size:22px;"></i>
+                                                GUST Browser
+                                            </div>
+                                            <span
+                                                style="font-size:11px; font-weight:700; letter-spacing:0.05em; color:var(--ac); background:rgba(157,229,255,0.10); border:1px solid rgba(157,229,255,0.35); border-radius:6px; padding:2px 7px; font-family:var(--mono);">v1.0</span>
+                                        </div>
+
+                                        <div
+                                            style="display:flex; flex-direction:column; gap:16px; font-size:13px; line-height:1.7; color:var(--tx2);">
+                                            <div>
+                                                <div style="margin-bottom:2px;">由 <a href="https://github.com/cjhdevact/GUST-Chinese" target="_blank" rel="noopener noreferrer" style="color:var(--ac);text-decoration:none;">GUST-Chinese</a> 实现翻译</div>
+                                        <div style="margin-bottom:10px;">基于 ec3493ca0cb592bfec661a19581af73aaccdaa1e 提交翻译</div>
+                                        <div
+                                                    style="color:var(--tx); font-weight:600; margin-bottom:4px; display:flex; align-items:center; gap:8px;">
+                                                    <i class="fas fa-globe" style="color:var(--ac);"></i> 工作原理
+                                                </div>
+                                                Gust 是一个完全运行在单个 HTML 文件内的<strong style="color:var(--tx);">静态</strong> Web 代理浏览器。
+                                                当你导航到一个网址时，Gust 会通过 <em>Wisp</em> 获取目标站点的 HTML、CSS、脚本和资源，然后重写所有资源 URL 并将其注入到沙盒 iframe 中。 Gust 可运行在任何 HTML 编辑器、<code style="background:var(--bg3); padding:2px 6px; border-radius:4px; font-size:12px;">iframe</code>、文件或 blob 中。它极其轻量，功能丰富，管理员几乎无法屏蔽。
+                                                
+                                            </div>
+
+                                            <div>
+                                                <div
+                                                    style="color:var(--tx); font-weight:600; margin-bottom:4px; display:flex; align-items:center; gap:8px;">
+                                                    <i class="fas fa-network-wired" style="color:var(--ac);"></i>
+                                                    WISP + libcurl.js
+                                                </div>
+                                                所有网络请求都通过 <strong style="color:var(--tx);">WISP WebSocket 服务器</strong>隧道传输。 你的浏览器会向 WISP 端点打开一个 WebSocket，由其代为转发 TCP/TLS 连接。 The actual HTTP fetching is
+                                                handled by <strong style="color:var(--tx);">libcurl.js</strong>
+                                                &amp;mdash; a port of the curl HTTP library compiled to WebAssembly
+                                                &amp;mdash; giving full HTTPS, redirect, and cookie support inside the
+                                                browser context.
+                                            </div>
+
+                                            <div>
+                                                <div
+                                                    style="color:var(--tx); font-weight:600; margin-bottom:4px; display:flex; align-items:center; gap:8px;">
+                                                    <i class="fas fa-code" style="color:var(--ac);"></i> 页面渲染
+                                                </div>
+                                                获取的 HTML 由 JavaScript 解析并重写。CSS 样式表和脚本通过代理加载，并以内联或 Blob URL 的形式注入。 图片、字体和其他资源的 URL 被重写，以通过同一代理管道路由。 最终文档使用生成的 Blob URL 在沙盒 <code style="background:var(--bg3); padding:2px 6px; border-radius:4px; font-size:12px;">iframe</code> 中渲染。
+                                            </div>
+
+                                            <div>
+                                                <div
+                                                    style="color:var(--tx); font-weight:600; margin-bottom:4px; display:flex; align-items:center; gap:8px;">
+                                                    <i class="fas fa-shield-halved" style="color:var(--ac);"></i>
+                                                    隐私与限制
+                                                </div>
+                                                由于请求流经 WISP 服务器，你的真实 IP 不会暴露给你访问的站点。 但 WISP 服务器运营者可能看到你的流量。
+                                                一些复杂的 Web 特性（页面内的原生 WebSocket、WebRTC、Service Worker）无法完全代理，可能无法工作。
+                                                iframe 内的 JavaScript 与父页面完全隔离。
+                                            </div>
+
+                                          <div>
+                                                <div
+                                                    style="color:var(--tx); font-weight:600; margin-bottom:8px; display:flex; align-items:center; gap:8px;">
+                                                    <i class="fa-solid fa-address-card" style="color:var(--ac);"></i>
+                                                    致谢
+                                                </div>
+                                                <div style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--tx2);">
+                                                    <div>
+                                                        <span style="color:var(--tx);font-weight:600;">Wisp Protocol</span>
+                                                        <span style="color:var(--tx3)"> — </span>
+                                                        Mercury Workshop
+                                                        <span style="color:var(--tx3);font-size:11px;margin-left:4px;">WebSocket 代理隧道</span>
+                                                    </div>
+                                                    <div>
+                                                        <span style="color:var(--tx);font-weight:600;">Original Gust Framework &amp; JS</span>
+                                                        <span style="color:var(--tx3)"> — </span>
+                                                        lanefiedler731-gif
+                                                    </div>
+                                                    <div>
+                                                        <span style="color:var(--tx);font-weight:600;">libcurl.js</span>
+                                                        <span style="color:var(--tx3)"> — </span>
+                                                        ading2210 &amp; contributors
+                                                        <span style="color:var(--tx3);font-size:11px;margin-left:4px;">curl 编译为 WebAssembly</span>
+                                                    </div>
+                                                    <div>
+                                                        <span style="color:var(--tx);font-weight:600;">PDF.js</span>
+                                                        <span style="color:var(--tx3)"> — </span>
+                                                        Mozilla Foundation
+                                                        <span style="color:var(--tx3);font-size:11px;margin-left:4px;">v4.2.67 · PDF 渲染引擎</span>
+                                                    </div>
+                                                    <div>
+                                                        <span style="color:var(--tx);font-weight:600;">Font Awesome</span>
+                                                        <span style="color:var(--tx3)"> — </span>
+                                                        Fonticons, Inc.
+                                                        <span style="color:var(--tx3);font-size:11px;margin-left:4px;">v6.5.1 · 图标库</span>
+                                                    </div>
+                                                    <div>
+                                                        <span style="color:var(--tx);font-weight:600;">iso-639-1</span>
+                                                        <span style="color:var(--tx3)"> — </span>
+                                                        Meikidd
+                                                        <span style="color:var(--tx3);font-size:11px;margin-left:4px;">v2.1.11 · ISO 语言代码</span>
+                                                    </div>
+                                                    <div>
+                                                        <span style="color:var(--tx);font-weight:600;">JetBrains Mono</span>
+                                                        <span style="color:var(--tx3)"> — </span>
+                                                        JetBrains s.r.o.
+                                                        <span style="color:var(--tx3);font-size:11px;margin-left:4px;">等宽字体（代码查看器）</span>
+                                                    </div>
+                                                    <div>
+                                                        <span style="color:var(--tx);font-weight:600;">Space Grotesk</span>
+                                                        <span style="color:var(--tx3)"> — </span>
+                                                        Florian Karsten
+                                                        <span style="color:var(--tx3);font-size:11px;margin-left:4px;">通过 Google Fonts 加载的界面字体</span>
+                                                    </div>
+                                                    <div>
+                                                        <span style="color:var(--tx);font-weight:600;">IndexedDB &amp; Web APIs</span>
+                                                        <span style="color:var(--tx3)"> — </span>
+                                                        W3C / WHATWG
+                                                        <span style="color:var(--tx3);font-size:11px;margin-left:4px;">代理缓存、存储、会话</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <!-- ── Fallback settings section ── -->
+                            <div class="settings-section" data-section="fallback" style="display:none;">
+                                <div class="settings-card">
+                                    <div class="settings-card-head"><i class="fas fa-rotate-left"></i> 回退行为</div>
+                                    <div class="settings-card-body">
+                                        <div class="settings-switch-row">
+                                            <div>
+                                                <div class="settings-switch-label">加载失败时启用回退</div>
+                                                <div class="settings-hint">页面加载失败时（网络错误、状态码异常、超时），在显示错误页面前自动使用回退代理重试。</div>
+                                            </div>
+                                            <div class="settings-switch on" id="fallbackEnabledSwitch">
+                                                <div class="settings-switch-track"><div class="settings-switch-thumb"></div></div>
+                                            </div>
+                                        </div>
+                                        <div class="settings-switch-row">
+                                            <div>
+                                                <div class="settings-switch-label">记录重试</div>
+                                                <div class="settings-hint">所有回退重试都会记录到请求日志中，包括使用的是哪个 WISP 服务器。</div>
+                                            </div>
+                                            <div style="display:flex;align-items:center;padding:4px 8px;background:rgba(157,229,255,0.07);border:1px solid rgba(157,229,255,0.18);border-radius:6px;font-size:11px;font-family:var(--mono);color:var(--ac);white-space:nowrap;flex-shrink:0;">始终开启</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="settings-card">
+                                    <div class="settings-card-head"><i class="fas fa-server"></i> 回退 WISP 服务器</div>
+                                    <div class="settings-card-body">
+                                        <label class="settings-label">回退 WebSocket 地址</label>
+                                        <div class="settings-hint" style="margin-bottom:10px;">仅当主 WISP 服务器无法访问或返回错误时使用。留空则禁用。</div>
+                                        <div style="display:flex; gap:8px;">
+                                            <input type="text" class="settings-input" id="settingsFallbackWispInput"
+                                                placeholder="wss://fallback.example.com/wisp/" />
+                                            <button class="settings-btn-icon" id="settingsFallbackWispSave" title="保存"><i
+                                                    class="fas fa-check"></i></button>
+                                            <button class="settings-btn-icon" id="settingsFallbackWispReset" title="清空"><i
+                                                    class="fas fa-xmark"></i></button>
+                                        </div>
+                                        <div class="settings-hint" id="settingsFallbackWispStatus" style="margin-top:8px;"></div>
+                                    </div>
+                                </div>
+
+                                <div class="settings-card">
+                                    <div class="settings-card-head"><i class="fas fa-clock-rotate-left"></i> 重试策略</div>
+                                    <div class="settings-card-body">
+                                        <div class="settings-switch-row" style="align-items:center;">
+                                            <div>
+                                                <div class="settings-switch-label">最大重试次数（主）</div>
+                                                <div class="settings-hint">切换到回退服务器前在主 WISP 服务器上重试的次数。</div>
+                                            </div>
+                                            <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+                                                <button class="settings-btn-icon" id="mainRetryMinus" title="减少"><i class="fas fa-minus"></i></button>
+                                                <span id="mainRetryVal" style="font-family:var(--mono); font-size:14px; min-width:24px; text-align:center; color:var(--tx);">3</span>
+                                                <button class="settings-btn-icon" id="mainRetryPlus" title="增加"><i class="fas fa-plus"></i></button>
+                                            </div>
+                                        </div>
+                                        <div class="settings-switch-row" style="align-items:center; margin-top:12px;">
+                                            <div>
+                                                <div class="settings-switch-label">最大重试次数（回退）</div>
+                                                <div class="settings-hint">显示错误前在回退 WISP 上尝试的次数。</div>
+                                            </div>
+                                            <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+                                                <button class="settings-btn-icon" id="fallbackRetryMinus" title="减少"><i class="fas fa-minus"></i></button>
+                                                <span id="fallbackRetryVal" style="font-family:var(--mono); font-size:14px; min-width:24px; text-align:center; color:var(--tx);">3</span>
+                                                <button class="settings-btn-icon" id="fallbackRetryPlus" title="增加"><i class="fas fa-plus"></i></button>
+                                            </div>
+                                        </div>
+                                        <div class="settings-switch-row" style="align-items:center; margin-top:12px;">
+                                            <div>
+                                                <div class="settings-switch-label">重试延迟（秒）</div>
+                                                <div class="settings-hint">切换到回退服务器前，每次重试之间的等待时间。</div>
+                                            </div>
+                                            <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+                                                <button class="settings-btn-icon" id="fallbackDelayMinus" title="减少"><i class="fas fa-minus"></i></button>
+                                                <span id="fallbackDelayVal" style="font-family:var(--mono); font-size:14px; min-width:24px; text-align:center; color:var(--tx);">3</span>
+                                                <button class="settings-btn-icon" id="fallbackDelayPlus" title="增加"><i class="fas fa-plus"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="settings-card">
+                                    <div class="settings-card-head"><i class="fas fa-triangle-exclamation"></i> 错误触发条件</div>
+                                    <div class="settings-card-body">
+                                        <div class="settings-switch-row">
+                                            <div>
+                                                <div class="settings-switch-label">HTTP 5xx 错误时回退</div>
+                                                <div class="settings-hint">源服务器返回 5xx 状态码时通过回退重试。</div>
+                                            </div>
+                                            <div class="settings-switch on" id="fallback5xxSwitch">
+                                                <div class="settings-switch-track"><div class="settings-switch-thumb"></div></div>
+                                            </div>
+                                        </div>
+                                        <div class="settings-switch-row">
+                                            <div>
+                                                <div class="settings-switch-label">超时时回退</div>
+                                                <div class="settings-hint">主服务器连接超时时通过回退重试。</div>
+                                            </div>
+                                            <div class="settings-switch on" id="fallbackTimeoutSwitch">
+                                                <div class="settings-switch-track"><div class="settings-switch-thumb"></div></div>
+                                            </div>
+                                        </div>
+                                        <div class="settings-switch-row">
+                                            <div>
+                                                <div class="settings-switch-label">DNS 失败时回退</div>
+                                                <div class="settings-hint">主机名无法解析时通过回退重试。</div>
+                                            </div>
+                                            <div class="settings-switch" id="fallbackDnsSwitch">
+                                                <div class="settings-switch-track"><div class="settings-switch-thumb"></div></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ── Files &amp; Media settings section ── -->
+                            <div class="settings-section" data-section="filesandmedia" style="display:none;">
+                                <div class="settings-card">
+                                    <div class="settings-card-head"><i class="fas fa-film"></i> 媒体范围请求</div>
+                                    <div class="settings-card-body">
+                                        <div class="settings-switch-row">
+                                            <div>
+                                                <div class="settings-switch-label">启用 Range 请求支持</div>
+                                                <div class="settings-hint">转发 <code>Range</code> 请求头并处理 <code>206 Partial Content</code> 响应。修复大多数网站上的视频/音频拖动和嵌入式媒体播放。</div>
+                                            </div>
+                                            <div class="settings-switch on" id="mediaRangeSwitch">
+                                                <div class="settings-switch-track"><div class="settings-switch-thumb"></div></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="settings-card">
+                                    <div class="settings-card-head"><i class="fas fa-download"></i> 未知文件类型</div>
+                                    <div class="settings-card-body">
+                                        <div class="settings-switch-row">
+                                            <div>
+                                                <div class="settings-switch-label">自动下载未知文件</div>
+                                                <div class="settings-hint">当 Gust 收到无法显示的文件（如 .zip、.exe）时，自动触发浏览器下载，而不是显示错误页。</div>
+                                            </div>
+                                            <div class="settings-switch" id="mediaDownloadSwitch">
+                                                <div class="settings-switch-track"><div class="settings-switch-thumb"></div></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="settings-card">
+                                    <div class="settings-card-head"><i class="fas fa-file-pdf"></i> PDF 查看器</div>
+                                    <div class="settings-card-body">
+                                        <div class="settings-switch-row">
+                                            <div>
+                                                <div class="settings-switch-label">内置 PDF 查看器</div>
+                                                <div class="settings-hint">使用基于 PDF.js 的内置查看器内联渲染 PDF 文件，而不是下载它们。</div>
+                                            </div>
+                                            <div class="settings-switch on" id="mediaPdfSwitch">
+                                                <div class="settings-switch-track"><div class="settings-switch-thumb"></div></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="settings-card">
+                                    <div class="settings-card-head"><i class="fas fa-image"></i> 图片查看器</div>
+                                    <div class="settings-card-body">
+                                        <div class="settings-switch-row">
+                                            <div>
+                                                <div class="settings-switch-label">内置图片查看器</div>
+                                                <div class="settings-hint">在简洁的全屏查看器中显示图片（PNG、JPEG、GIF、WebP、SVG…），支持缩放和平移。</div>
+                                            </div>
+                                            <div class="settings-switch on" id="mediaImgSwitch">
+                                                <div class="settings-switch-track"><div class="settings-switch-thumb"></div></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="settings-card">
+                                    <div class="settings-card-head"><i class="fas fa-film"></i> 视频播放器</div>
+                                    <div class="settings-card-body">
+                                        <div class="settings-switch-row">
+                                            <div>
+                                                <div class="settings-switch-label">内置视频播放器</div>
+                                                <div class="settings-hint">使用内置播放器播放视频文件（MP4、WebM、OGG…），带控制栏。</div>
+                                            </div>
+                                            <div class="settings-switch on" id="mediaVideoSwitch">
+                                                <div class="settings-switch-track"><div class="settings-switch-thumb"></div></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="settings-card">
+                                    <div class="settings-card-head"><i class="fas fa-music"></i> 音频播放器</div>
+                                    <div class="settings-card-body">
+                                        <div class="settings-switch-row">
+                                            <div>
+                                                <div class="settings-switch-label">内置音频播放器</div>
+                                                <div class="settings-hint">使用样式化的播放器播放音频文件（MP3、OGG、FLAC、WAV…），而不是下载。</div>
+                                            </div>
+                                            <div class="settings-switch on" id="mediaAudioSwitch">
+                                                <div class="settings-switch-track"><div class="settings-switch-thumb"></div></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="settings-card">
+                                    <div class="settings-card-head"><i class="fas fa-file-lines"></i> 文本 / 代码查看器</div>
+                                    <div class="settings-card-body">
+                                        <div class="settings-switch-row">
+                                            <div>
+                                                <div class="settings-switch-label">内置文本查看器</div>
+                                                <div class="settings-hint">内联显示纯文本、JSON、XML、CSV 和源代码文件，并带语法感知格式化。</div>
+                                            </div>
+                                            <div class="settings-switch on" id="mediaTextSwitch">
+                                                <div class="settings-switch-track"><div class="settings-switch-thumb"></div></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- ── end Files &amp; Media ── -->
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="overlay splash" id="overlay">
+                    <div class="spinner"></div>
+                    <div id="overlayText">Initializing...</div>
+                </div>
+                <div id="elemHighlightOverlay" style="
+                    display:none;
+                    position:absolute;
+                    pointer-events:none;
+                    z-index:50;
+                    outline:2px solid var(--ac,#9de5ff);
+                    outline-offset:0px;
+                    box-shadow:0 0 0 4px rgba(157,229,255,0.18), inset 0 0 0 9999px rgba(157,229,255,0.08);
+                    border-radius:2px;
+                    transition:top .08s,left .08s,width .08s,height .08s;
+                "></div>
+                <iframe id="frame"
+                    sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-modals allow-pointer-lock allow-downloads"
+                    allow="clipboard-read; clipboard-write; fullscreen; autoplay; camera; microphone; gamepad"></iframe>
+            </div>
+
+            <div class="logs hidden" id="logs">
+                <div class="panel-resize-handle" id="logsResizeHandle"></div>
+                <div class="log-head">
+                    <div class="log-head-top">
+                        <span>
+                            Logs
+                            <span class="log-count-badge" id="logCountBadge">0</span>
+                            <div class="log-search-wrap">
+                                <i class="fas fa-magnifying-glass log-search-icon"></i>
+                                <input class="log-search" id="logSearch" type="text" placeholder="筛选…" autocomplete="off" spellcheck="false" />
+                            </div>
+                        </span>
+                        <div class="log-head-controls">
+                            <button class="tool-btn copy-btn" id="copyLogs" title="复制日志">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                            <button class="tool-btn" id="clear" title="清空日志">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="log-filter-bar" id="logFilterBar">
+                        <button class="log-filter-btn f-all active" data-filter="all">全部</button>
+                        <button class="log-filter-btn f-info" data-filter="info"><i class="fas fa-circle-info" style="font-size:8px;"></i> 信息</button>
+                        <button class="log-filter-btn f-ok" data-filter="ok"><i class="fas fa-check" style="font-size:8px;"></i> 成功</button>
+                        <button class="log-filter-btn f-warn" data-filter="warn"><i class="fas fa-triangle-exclamation" style="font-size:8px;"></i> 警告</button>
+                        <button class="log-filter-btn f-err" data-filter="err"><i class="fas fa-xmark" style="font-size:8px;"></i> 错误</button>
+                        <button class="log-filter-btn f-stream" data-filter="stream"><i class="fas fa-wave-square" style="font-size:8px;"></i> 流</button>
+                    </div>
+                </div>
+                <div class="log-body" id="logbox">
+                    <div class="log-no-results" id="logNoResults">无匹配条目</div>
+                </div>
+                <div class="log-footer">
+                    <span class="status"><span class="dot idle" id="statusDot"></span><span id="statusText">就绪</span></span>
+                    <div class="log-footer-right">
+                        <span class="stats" id="stats">0 个请求</span>
+                        <button class="log-autoscroll-btn pinned" id="logAutoScrollBtn" title="切换自动滚动">
+                            <i class="fas fa-angles-down"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="elements hidden" id="elements">
+                <div class="panel-resize-handle" id="elementsResizeHandle"></div>
+                <div class="elements-head">
+                    <div class="elements-head-top">
+                        <span class="elements-head-label">元素</span>
+                        <div class="elements-search-wrap">
+                            <i class="fas fa-magnifying-glass elements-search-icon"></i>
+                            <input class="elements-search" id="elementsSearch" type="text" placeholder="筛选标签、属性…" autocomplete="off" spellcheck="false" />
+                        </div>
+                        <div style="display:flex;gap:4px;flex-shrink:0;align-items:center;">
+                            <button class="tool-btn" id="refreshElements" title="刷新元素">
+                                <i class="fas fa-rotate-right"></i>
+                            </button>
+                            <button class="elem-detail-toggle on" id="elemDetailToggle" title="切换详情面板">
+                                <i class="fas fa-table-cells-large"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="elements-breadcrumb" id="elementsBreadcrumb"></div>
+                </div>
+                <div class="elements-body" id="elementsBody">
+                    <ul class="elements-tree" id="elementsTree"></ul>
+                </div>
+                <div id="elementsDetail"
+                    style="border-top:1px solid var(--bd);flex-shrink:0;overflow-y:auto;max-height:240px;display:none;background:var(--bg1);">
+                    <div style="display:flex;gap:0;border-bottom:1px solid var(--bd);">
+                        <button class="elem-tab active" data-tab="styles"
+                            style="flex:1;padding:6px 4px;font-size:11px;background:none;border:none;color:var(--tx2);cursor:pointer;border-bottom:2px solid var(--ac);font-family:var(--ui);">样式</button>
+                        <button class="elem-tab" data-tab="box"
+                            style="flex:1;padding:6px 4px;font-size:11px;background:none;border:none;color:var(--tx3);cursor:pointer;border-bottom:2px solid transparent;font-family:var(--ui);">盒模型</button>
+                        <button class="elem-tab" data-tab="attrs"
+                            style="flex:1;padding:6px 4px;font-size:11px;background:none;border:none;color:var(--tx3);cursor:pointer;border-bottom:2px solid transparent;font-family:var(--ui);">属性</button>
+                    </div>
+                    <div id="elemDetailContent"
+                        style="padding:8px;font-size:11px;font-family:var(--mono);color:var(--tx2);line-height:1.7;"></div>
+                </div>
+                
+                <div id="elemCtxMenu"
+                    style="display:none;position:fixed;z-index:99999;background:var(--bg2);border:1px solid var(--bd);border-radius:8px;padding:4px;min-width:170px;box-shadow:0 8px 24px rgba(0,0,0,.5);">
+                    <button class="ctx-item" id="ctxCopySelector"><i class="fas fa-code" style="width:14px"></i> 复制选择器</button>
+                    <button class="ctx-item" id="ctxCopyHtml"><i class="fas fa-copy" style="width:14px"></i> 复制 HTML</button>
+                    <button class="ctx-item" id="ctxCopyText"><i class="fas fa-font" style="width:14px"></i> 复制文本</button>
+                    <div style="height:1px;background:var(--bd);margin:3px 0;"></div>
+                    <button class="ctx-item" id="ctxScrollTo"><i class="fas fa-eye" style="width:14px"></i> 滚动到视图</button>
+                    <button class="ctx-item" id="ctxHideElement"><i class="fas fa-eye-slash" style="width:14px"></i> 隐藏元素</button>
+                </div>
+            </div>
+        </main>
+        <script src="./static/js.js"></script>
+        <div id="tutorialOverlay" style="display:none; position:fixed; inset:0; z-index:99999; pointer-events:all;">
+        <div id="tutorialBackdrop"
+            style="position:absolute; inset:0; backdrop-filter:blur(10px); -webkit-backdrop-filter: blur(10px); transition:opacity .35s; opacity:0; pointer-events:all;">
+        </div>
+        <svg id="tutorialSpotSvg"
+            style="position:absolute;inset:0;width:100%;height:100%;pointer-events:all;transition:opacity .35s;opacity:0;"
+            xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <mask id="spotMask">
+                    <rect width="100%" height="100%" fill="white" />
+                    <rect id="spotRect" x="0" y="0" width="0" height="0" rx="12" fill="black" />
+                </mask>
+            </defs>
+            <rect width="100%" height="100%" fill="rgba(0,0,0,0.48)" mask="url(#spotMask)" id="spotOverlay" />
+            <rect id="spotRing" x="0" y="0" width="0" height="0" rx="12" fill="none" stroke="var(--ac, #9de5ff)"
+                stroke-width="1" />
+        </svg>
+        <div id="tutorialCloneWrap" style="position:absolute;inset:0;pointer-events:none;z-index:2;">
+            <!-- pointer-events:none so the clone is visual-only; the SVG backdrop above intercepts all background clicks -->
+        </div>
+        <div id="tutorialRing"
+            style="position:absolute;pointer-events:none;border:1.5px solid #9de5ff;border-radius:8px;display:none;transition:none;z-index:3;">
+        </div>
+        <div id="tutorialCard" style="
+                        position:absolute;
+                        width:380px;
+                        background:var(--bg2);
+                        border:1px solid var(--ac);
+                        border-radius:16px;
+                        padding:24px 26px 20px;
+                        box-shadow:0 12px 50px rgba(0,0,0,0.7), 0 0 0 1px rgba(100,210,255,0.08);
+                        pointer-events:all;
+                        transition: opacity .25s, transform .25s;
+                        opacity:0;
+                        transform:translateY(8px);
+                        z-index:10;
+                    ">
+            <div id="tutorialDots" style="display:flex;gap:5px;margin-bottom:16px;"></div>
+            <div id="tutorialArrow"
+                style="position:absolute;width:12px;height:12px;background:var(--bg2);border:1px solid var(--ac);display:none;transform:rotate(45deg);z-index:-1;">
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:14px;">
+                <div id="tutorialIcon" style="
+                                width:42px;height:42px;border-radius:11px;
+                                background:rgba(100,210,255,0.12);
+                                display:flex;align-items:center;justify-content:center;
+                                flex-shrink:0;color:var(--ac);font-size:18px;
+                            "></div>
+                <div style="flex:1;">
+                    <div id="tutorialTitle"
+                        style="font-size:15px;font-weight:700;color:var(--tx);margin-bottom:5px;line-height:1.2;"></div>
+                    <div id="tutorialBody" style="font-size:13.5px;color:var(--tx2);line-height:1.6;"></div>
+                </div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:18px;">
+                <button id="tutorialSkip" style="
+                                background:none;border:none;color:var(--tx3);
+                                font-size:12px;cursor:pointer;padding:0;
+                            ">跳过导览</button>
+                <div style="display:flex;gap:8px;">
+                    <button id="tutorialBack" style="
+                                    background:var(--bg3);border:1px solid var(--bd);
+                                    color:var(--tx2);border-radius:8px;padding:7px 18px;
+                                    font-size:13px;cursor:pointer;display:none;
+                                "><i class="fas fa-arrow-left" style="margin-right:5px;"></i>上一步</button>
+                    <button id="tutorialNext" style="
+                                    background:var(--ac);border:none;
+                                    color:#000;border-radius:8px;padding:7px 20px;
+                                    font-size:13px;font-weight:700;cursor:pointer;
+                                ">下一步</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+</body>
+</html>
+  </foreignObject>
+</svg>
