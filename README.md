@@ -2,10 +2,10 @@
 
 # GUST
 
-![version](https://img.shields.io/badge/version-1.0-blue?style=flat-square)
-![license](https://img.shields.io/badge/license-AGPLv3-green?style=flat-square)
-![no service workers](https://img.shields.io/badge/service%20workers-absolutely%20not-red?style=flat-square)
-![totally working svg](https://img.shields.io/badge/svg%20functionality-gorgeous%20and%20beautiful-blue?style=flat-square)
+![版本](https://img.shields.io/badge/version-2.0-blue?style=flat-square)
+![许可证](https://img.shields.io/badge/license-AGPLv3-green?style=flat-square)
+![无 Service Worker](https://img.shields.io/badge/service%20workers-absolutely%20not-red?style=flat-square)
+![SVG 完美运行](https://img.shields.io/badge/svg%20functionality-gorgeous%20and%20beautiful-blue?style=flat-square)
 
 </div>
 
@@ -53,19 +53,19 @@ GUST 是一个功能齐全的 Web 代理，**完整运行在单个 HTML 文件�
 
 ## 截图
 
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/93db1bf0-2e4e-431e-a273-79f9229df4f4" />
-<img width="1919" height="969" alt="image" src="https://github.com/user-attachments/assets/fcc15a77-dde1-4d22-bfc7-d809acfe2891" />
-<img width="1920" height="973" alt="image" src="https://github.com/user-attachments/assets/c1388250-65a4-4878-9481-a2539c33079e" />
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/3d332a9f-7713-419d-9350-bbe6c104a892" />
-<img width="1920" height="973" alt="image" src="https://github.com/user-attachments/assets/3254ba60-0636-4ae9-962c-7173c0b358de" />
-<img width="1920" height="973" alt="image" src="https://github.com/user-attachments/assets/0914ae53-eb7c-432a-9566-55c6923818ed" />
-<img width="1920" height="973" alt="image" src="https://github.com/user-attachments/assets/17fb9ac8-15c8-4881-b65f-a0dc92324256" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/cb9d573e-1e03-4abf-b74f-643a2f7eac72" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/27889e79-d7cd-4c37-899a-3ba628d8d070" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/bcb54134-3d65-402f-a348-2dda9b933ad3" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/19d59861-fc7e-43f1-8f68-43a34cf53b7d" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/ce7c4635-ff48-48be-a774-2fd95f179122" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/1af1b00c-2439-4532-8aeb-97b4018cc049" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/6fe149db-1370-4157-ab80-c3ceb7eb627e" />
 
 ---
 
 ## 工作原理
 
-当你输入一个 URL，GUST 会通过 WebAssembly HTTP 客户端获取整个页面，重写每一个资源 URL，注入代理运行时脚本，并把结果渲染到一个沙盒 iframe 里。需要特别说明的是：**iframe 纯粹用于沙盒隔离**，你在 GUST 里访问的站点其实已经被代理过了。而在其他低质量的、自称可以不用 Service Worker 的"代理"里，iframe 往往只是简单指向另一个 URL（例如 `<iframe src="https://blocked-site.com">`），完全没有额外的重写或代理。这立刻就失败了，因为过滤器能看见发往被封域名的请求并直接掐掉。而在 GUST 内部，它通过 Wisp 隧道获取原始数据，并清洗代码，把每一个链接和资源都重定向回自己，然后把这份修改过的载荷注入 iframe 作为沙盒环境。这保证了被代理站点可以运行自己的脚本和样式，同时不会破坏 GUST 界面、不会把你的真实活动泄露给网络过滤器，也保证过滤器能看见的**唯一请求就是发往 Wisp 服务器的请求**。具体流程如下：
+当你输入一个 URL，GUST 会通过 WebAssembly HTTP 客户端获取整个页面，重写每一个资源 URL，注入代理运行时脚本，并把结果渲染到一个沙盒 iframe 里。需要特别说明的是：**iframe 纯粹用于沙盒隔离**，你在 GUST 里访问的站点其实已经被代理过了。而在其他低质量的、自称可以不用 Service Worker 的“代理”里，iframe 往往只是简单指向另一个 URL（例如 `<iframe src="https://blocked-site.com">`），完全没有额外的重写或代理。这立刻就失败了，因为过滤器能看见发往被封域名的请求并直接掐掉。而在 GUST 内部，它通过 Wisp 隧道获取原始数据，并清洗代码，把每一个链接和资源都重定向回自己，然后把这份修改过的载荷注入 iframe 作为沙盒环境。这保证了被代理站点可以运行自己的脚本和样式，同时不会破坏 GUST 界面、不会把你的真实活动泄露给网络过滤器，也保证过滤器能看见的**唯一请求就是发往 Wisp 服务器的请求**。具体流程如下：
 
 <img width="1440" height="1178" alt="image" src="https://github.com/user-attachments/assets/c2cbd934-4c5f-4341-95ae-190c9f66d828" /><br>
 

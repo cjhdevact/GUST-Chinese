@@ -132,9 +132,9 @@
 
   let WISP = (function () {
     try {
-      return ls.getItem("gust:wisp:v1") || "wss://wisp.mercurywork.shop/";
+      return ls.getItem("gust:wisp:v1") || "wss://wisp.rhw.one/wisp/";
     } catch {
-      return "wss://wisp.mercurywork.shop/";
+      return "wss://wisp.rhw.one/wisp/";
     }
   })();
   const $ = (s) => document.getElementById(s);
@@ -260,10 +260,7 @@
   let navId = 0;
   let selectedEngine = (function () {
     try {
-      return ls.getItem("gust:engine:v1") || "brave";
-    } catch {
-      return "brave";
-    }
+      return ls.getItem("gust:engine:v1") || "bing"; } catch { return "bing"; }
   })();
 
   let totalRequests = 0;
@@ -1782,7 +1779,7 @@
 
   async function initCache() {
     return new Promise((resolve, reject) => {
-      const req = indexedDB.open(_IDB_PFX + "ProxyCache", 1);
+      const req = indexedDB.open(_IDB_PFX + "ProxyCache", 2);
       req.onerror = () => reject(req.error);
       req.onsuccess = () => {
         cacheDB = req.result;
@@ -1792,9 +1789,13 @@
       req.onupgradeneeded = (e) => {
         const db = e.target.result;
         if (!db.objectStoreNames.contains("resources")) {
-          db.createObjectStore("resources", {
-            keyPath: "url",
-          });
+          const store = db.createObjectStore("resources", { keyPath: "url" });
+          store.createIndex("byLastAccessed", "lastAccessed");
+        } else {
+          const store = e.target.transaction.objectStore("resources");
+          if (!store.indexNames.contains("byLastAccessed")) {
+            store.createIndex("byLastAccessed", "lastAccessed");
+          }
         }
       };
     });
@@ -1829,6 +1830,10 @@
         req.onsuccess = () => {
           const r = req.result;
           if (r && Date.now() - r.time < CACHE_TTL) {
+            try {
+              const wtx = cacheDB.transaction("resources", "readwrite");
+              wtx.objectStore("resources").put({ ...r, lastAccessed: Date.now() });
+            } catch {}
             resolve(r);
           } else {
             if (r) deleteCache(url);
@@ -1859,6 +1864,7 @@
         mime,
         headers,
         time: Date.now(),
+        lastAccessed: Date.now(),
         size,
       });
       cacheSize += size;
@@ -1868,10 +1874,22 @@
 
   async function deleteCache(url) {
     if (!cacheDB) return;
-    try {
-      const tx = cacheDB.transaction("resources", "readwrite");
-      tx.objectStore("resources").delete(url);
-    } catch {}
+    return new Promise((resolve) => {
+      try {
+        const tx = cacheDB.transaction("resources", "readwrite");
+        const store = tx.objectStore("resources");
+        const getReq = store.get(url);
+        getReq.onsuccess = () => {
+          const entry = getReq.result;
+          if (entry) {
+            cacheSize -= entry.size || 0;
+            store.delete(url);
+          }
+          resolve();
+        };
+        getReq.onerror = () => resolve();
+      } catch { resolve(); }
+    });
   }
 
   async function evictOldest() {
@@ -1881,12 +1899,13 @@
       try {
         const tx = cacheDB.transaction("resources", "readwrite");
         const store = tx.objectStore("resources");
-        const countReq = store.count();
+        const idx = store.index("byLastAccessed");
+        const countReq = idx.count();
         countReq.onsuccess = () => {
           const total = countReq.result;
           const toDelete = Math.max(1, Math.ceil(total * 0.1));
           let deleted = 0;
-          const curReq = store.openCursor();
+          const curReq = idx.openCursor();
           curReq.onsuccess = () => {
             const cursor = curReq.result;
             if (cursor && deleted < toDelete) {
@@ -1914,7 +1933,7 @@
       tx.objectStore("resources").clear();
       cacheSize = 0;
       updateCacheSize();
-      log("Cache cleared", "info");
+      log("缓存已清空", "info");
     } catch {}
   }
 
@@ -2912,15 +2931,15 @@
   document.addEventListener("click", () => {
     if (elemCtxMenu) elemCtxMenu.style.display = "none";
   });
-  $("ctxCopySelector")?.addEventListener("click", () => {
+  $("ctx复制Selector")?.addEventListener("click", () => {
     if (selectedElement)
       navigator.clipboard?.writeText(getSelector(selectedElement));
   });
-  $("ctxCopyHtml")?.addEventListener("click", () => {
+  $("ctx复制Html")?.addEventListener("click", () => {
     if (selectedElement)
       navigator.clipboard?.writeText(selectedElement.outerHTML);
   });
-  $("ctxCopyText")?.addEventListener("click", () => {
+  $("ctx复制Text")?.addEventListener("click", () => {
     if (selectedElement)
       navigator.clipboard?.writeText(selectedElement.textContent?.trim() || "");
   });
@@ -3037,7 +3056,7 @@
         : `${all.length}`;
   }
 
-  function _entryMatchesFilter(entry) {
+  function _entry匹配esFilter(entry) {
     const type = entry.dataset.type || "";
     const text = (entry.dataset.text || "").toLowerCase();
     const filterOk = _logFilter === "all" || type === _logFilter;
@@ -3048,7 +3067,7 @@
   function _applyFilter() {
     let anyVisible = false;
     logbox.querySelectorAll(".log-entry").forEach((el) => {
-      const show = _entryMatchesFilter(el);
+      const show = _entry匹配esFilter(el);
       el.classList.toggle("hidden-by-filter", !show);
       if (show) anyVisible = true;
     });
@@ -3171,7 +3190,7 @@
     d.appendChild(msgSpan);
 
     // Apply filter immediately
-    if (!_entryMatchesFilter(d)) d.classList.add("hidden-by-filter");
+    if (!_entry匹配esFilter(d)) d.classList.add("hidden-by-filter");
 
     // Insert before the no-results placeholder
     const noResults = document.getElementById("logNoResults");
@@ -3250,7 +3269,7 @@
     }
     // Update text
     overlayText.classList.add("overlay-err-text");
-    overlayText.textContent = "libcurl failed to initialize: " + reason;
+    overlayText.textContent = "libcurl 初始化失败: " + reason;
     overlay.classList.remove("hidden");
     // Inject action buttons and return a Promise that resolves when the user chooses
     return new Promise((resolve) => {
@@ -4527,8 +4546,8 @@ this.removeAttribute('data-srcset-loading'); }, configurable: true }); });
 async function rewriteCss(css, base, _depth) {
   if ((_depth || 0) > 4) return css;
   const importRe = /@import\\s+(?:url\\()?['"]?([^'")\\s;]+)['"]?\\)?[^;]*;/gi;
-  const importMatches = [...css.matchAll(importRe)];
-  for (const im of importMatches) {
+  const import匹配es = [...css.matchAll(importRe)];
+  for (const im of import匹配es) {
     try {
       const importUrl = resolve(im[1], base);
       const r = await req(importUrl);
@@ -4731,7 +4750,7 @@ window.__gustImportScripts = function(...urls) {
       xhr.open('GET', absUrl, false); 
       xhr.send();
       if (xhr.status >= 200 && xhr.status < 400) {
-        (0, eval)(xhr.responseText);
+        new Function(xhr.responseText)();
       }
     } catch(e) {}
   });
@@ -5014,7 +5033,7 @@ parent.postMessage({ t: 'ready' }, '*');
       const rect = frame.getBoundingClientRect();
       const x = rect.left + d.x;
       const y = rect.top + d.y;
-      openContextMenu(x, y);
+      open上下文Menu(x, y);
       return;
     }
 
@@ -5401,7 +5420,7 @@ parent.postMessage({ t: 'ready' }, '*');
       "    canvas.width=Math.floor(vp.width);canvas.height=Math.floor(vp.height);" +
       "    canvas.dataset.page=i;" +
       "    wrap.appendChild(canvas);vw.appendChild(wrap);" +
-      '    await page.render({canvasContext:canvas.getContext("2d"),viewport:vp}).promise;' +
+      '    await page.render({canvas上下文:canvas.get上下文("2d"),viewport:vp}).promise;' +
       "  }" +
       "  curPage=1;updateUI();" +
       "}" +
@@ -5914,7 +5933,7 @@ parent.postMessage({ t: 'ready' }, '*');
 
     url = normUrl(url);
     if (!url) {
-      log("Invalid URL", "err");
+      log("无效网址", "err");
       return;
     }
     if (url === HOME_INTERNAL) {
@@ -6010,7 +6029,7 @@ parent.postMessage({ t: 'ready' }, '*');
           ],
         );
 
-        setTabTitle("Invalid URL");
+        setTabTitle("无效网址");
         isErrorPage = true;
         const errTab2 = tabs.find((t) => t.id === initiatorTabId);
         if (errTab2) errTab2.hasError = true;
@@ -6053,7 +6072,7 @@ parent.postMessage({ t: 'ready' }, '*');
       } catch {
         setTabTitle("加载中…");
       }
-      showOverlay("加载中…");
+      showOverlay("加载中...");
       totalRequests = 0;
       pendingRequests = 0;
       cachedHits = 0;
@@ -6245,12 +6264,12 @@ parent.postMessage({ t: 'ready' }, '*');
         } else if (val === "refresh") {
           // Content is either "N" or "N; url=TARGET"
           const content = m.getAttribute("content") || "";
-          const urlMatch = content.match(/url\s*=\s*['"]?([^'";\s]+)/i);
+          const url匹配 = content.match(/url\s*=\s*['"]?([^'";\s]+)/i);
           m.remove(); // always strip — never let browser handle it natively
-          if (urlMatch) {
-            const refreshUrl = urlMatch[1].trim();
-            const delayMatch = content.match(/^\s*(\d+)/);
-            const delay = delayMatch ? parseInt(delayMatch[1], 10) * 1000 : 0;
+          if (url匹配) {
+            const refreshUrl = url匹配[1].trim();
+            const delay匹配 = content.match(/^\s*(\d+)/);
+            const delay = delay匹配 ? parseInt(delay匹配[1], 10) * 1000 : 0;
             setTimeout(
               () => {
                 try {
@@ -6417,11 +6436,11 @@ parent.postMessage({ t: 'ready' }, '*');
 
       async function rewriteCssUrls(cssText, baseUrl) {
         const seen = new Set();
-        const urlMatches = [
+        const url匹配es = [
           ...cssText.matchAll(/url\(\s*(['"]?)([^'")\s]+)\1\s*\)/gi),
         ];
         await Promise.all(
-          urlMatches.map(async (m) => {
+          url匹配es.map(async (m) => {
             if (/^(data:|blob:|#)/i.test(m[2]) || seen.has(m[0])) return;
             seen.add(m[0]);
             try {
@@ -6500,12 +6519,12 @@ parent.postMessage({ t: 'ready' }, '*');
               );
             let css = new TextDecoder().decode(cssR.buf);
 
-            const importMatches = [
+            const import匹配es = [
               ...css.matchAll(
                 /@import\s+(?:url\()?['"]?([^'")\s;]+)['"]?\)?/gi,
               ),
             ];
-            for (const im of importMatches) {
+            for (const im of import匹配es) {
               try {
                 const importUrl = new URL(im[1], cssUrl).href;
                 const importR = await queueFetch(
@@ -6547,11 +6566,11 @@ parent.postMessage({ t: 'ready' }, '*');
           try {
             const seen = new Set();
             let result = css;
-            const urlMatches = [
+            const url匹配es = [
               ...css.matchAll(/url\(\s*(['"]?)([^'")\s]+)\1\s*\)/gi),
             ];
             await Promise.all(
-              urlMatches.map(async (m) => {
+              url匹配es.map(async (m) => {
                 if (/^(data:|blob:|#)/i.test(m[2]) || seen.has(m[0])) return;
                 seen.add(m[0]);
                 try {
@@ -6842,7 +6861,7 @@ parent.postMessage({ t: 'ready' }, '*');
         _eMsg.includes("504") ||
         _eMsg.includes("internal server");
 
-      const _triggerMatches =
+      const _trigger匹配es =
         (_isDns && _fbDns) ||
         (_isTimeout && _fbTimeout) ||
         (_is5xx && _fb5xx) ||
@@ -6859,7 +6878,7 @@ parent.postMessage({ t: 'ready' }, '*');
 
       if (
         !_isRetry &&
-        _triggerMatches &&
+        _trigger匹配es &&
         !tabAbortControllers.get(initiatorTabId)?.signal?.aborted
       ) {
         // ── Phase 1: retry on primary WISP ──────────────────────
@@ -7563,14 +7582,14 @@ parent.postMessage({ t: 'ready' }, '*');
   });
 
   $("siteInfoClose").onclick = hideSiteInfo;
-  $("siteInfoCopy").onclick = async () => {
+  $("siteInfo复制").onclick = async () => {
     if (pageUrl && pageUrl !== HOME_INTERNAL && !isSettingsPage(pageUrl)) {
       try {
         await navigator.clipboard.writeText(pageUrl);
-        const btn = $("siteInfoCopy");
+        const btn = $("siteInfo复制");
         btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
         setTimeout(() => {
-          btn.innerHTML = '<i class="fas fa-copy"></i> Copy URL';
+          btn.innerHTML = '<i class="fas fa-copy"></i> 复制 URL';
         }, 1500);
       } catch (e) {}
     }
@@ -8092,7 +8111,7 @@ parent.postMessage({ t: 'ready' }, '*');
   if (ntGithubBtn)
     ntGithubBtn.onclick = () =>
       window.open(
-        "https://github.com/nautilus-os/GUST",
+        "https://github.com/cjhdevact/GUST-Chinese",
         "_blank",
         "noopener,noreferrer",
       );
@@ -8310,13 +8329,13 @@ parent.postMessage({ t: 'ready' }, '*');
       loadSavedWallpaper();
       if (ntEngineLabel) {
         if (selectedEngine === "google" || selectedEngine === "ddg") {
-          selectedEngine = "brave";
+          selectedEngine = "bing";
           try {
-            ls.setItem("gust:engine:v1", "brave");
+            ls.setItem("gust:engine:v1", "bing");
           } catch {}
         }
         const engineNames = { brave: "Brave", bing: "Bing" };
-        ntEngineLabel.textContent = engineNames[selectedEngine] || "Brave";
+        ntEngineLabel.textContent = engineNames[selectedEngine] || "Bing";
         ntEngineDropdown.querySelectorAll("button").forEach((b) => {
           b.classList.toggle("active", b.dataset.engine === selectedEngine);
         });
@@ -8372,21 +8391,21 @@ parent.postMessage({ t: 'ready' }, '*');
         curl = new libcurl.HTTPSession();
         curl.set_connections(MAX_CONCURRENT, MAX_CONCURRENT, MAX_CONCURRENT);
         log(
-          `<i class="fas fa-circle-check" style="color:var(--ok)"></i><span style="color:var(--ok)">libcurl initialized successfully</span>`,
+          `<i class="fas fa-circle-check" style="color:var(--ok)"></i><span style="color:var(--ok)">libcurl 初始化成功</span>`,
           "ok",
         );
         log(
-          `Ready! (${MAX_CONCURRENT} connections, 1h cache) <span style="color:var(--tx3);font-size:11px;font-family:var(--mono)">via ${WISP.replace(/^wss?:\/\//, "").split("/")[0]}</span>`,
+          `就绪！(${MAX_CONCURRENT} 个连接，1 小时缓存) <span style="color:var(--tx3);font-size:11px;font-family:var(--mono)">via ${WISP.replace(/^wss?:\/\//, "").split("/")[0]}</span>`,
           "ok",
         );
       } catch (e) {
         const reason = e.message || "Unknown error";
         console.error("[GUST] libcurl failed to initialize:", reason, e);
-        log("libcurl failed to initialize: " + reason, "err");
-        log("Waiting for user to choose how to proceed...", "warn");
+        log("libcurl 初始化失败: " + reason, "err");
+        log("等待用户选择如何继续…", "warn");
         await showOverlayError(reason);
         log(
-          "Continuing in limited mode (falling back to native fetch)",
+          "继续以受限模式运行（回退到原生 fetch）",
           "warn",
         );
         hideOverlay();
@@ -8597,7 +8616,7 @@ parent.postMessage({ t: 'ready' }, '*');
     }
     if (wispReset && wispInput) {
       wispReset.onclick = async () => {
-        const defaultWisp = "wss://wisp.mercurywork.shop/";
+        const defaultWisp = "wss://wisp.rhw.one/wisp/";
         wispInput.value = defaultWisp;
         try {
           ls.setItem("gust:wisp:v1", defaultWisp);
@@ -9478,7 +9497,7 @@ parent.postMessage({ t: 'ready' }, '*');
   const contextMenu = $("contextMenu");
   let contextMenuTarget = null;
 
-  function updateContextMenuStates() {
+  function update上下文MenuStates() {
     const onProxiedPage = !!(
       pageUrl &&
       pageUrl !== HOME_INTERNAL &&
@@ -9520,10 +9539,10 @@ parent.postMessage({ t: 'ready' }, '*');
       ctxBookmark.querySelector("i").className = "far fa-bookmark";
     }
 
-    const canCopy = onProxiedPage;
-    const ctxCopyUrl = $("ctxCopyUrl");
-    ctxCopyUrl.disabled = !canCopy;
-    ctxCopyUrl.classList.toggle("disabled", !canCopy);
+    const can复制 = onProxiedPage;
+    const ctx复制Url = $("ctx复制Url");
+    ctx复制Url.disabled = !can复制;
+    ctx复制Url.classList.toggle("disabled", !can复制);
 
     const canClose = tabs.length > 1;
     const ctxCloseTab = $("ctxCloseTab");
@@ -9531,9 +9550,9 @@ parent.postMessage({ t: 'ready' }, '*');
     ctxCloseTab.classList.toggle("disabled", !canClose);
   }
 
-  function openContextMenu(x, y) {
-    closeTabContextMenu(); // close tab menu if open
-    updateContextMenuStates();
+  function open上下文Menu(x, y) {
+    closeTab上下文Menu(); // close tab menu if open
+    update上下文MenuStates();
     contextMenu.style.left = x + "px";
     contextMenu.style.top = y + "px";
     contextMenu.classList.add("active");
@@ -9562,7 +9581,7 @@ parent.postMessage({ t: 'ready' }, '*');
     e.preventDefault();
 
     if (!isOnFrame && !isOnTab) {
-      openContextMenu(e.clientX, e.clientY);
+      open上下文Menu(e.clientX, e.clientY);
       contextMenuTarget = e.target;
     }
   });
@@ -9627,7 +9646,7 @@ parent.postMessage({ t: 'ready' }, '*');
     );
   };
 
-  $("ctxCopyUrl").onclick = async () => {
+  $("ctx复制Url").onclick = async () => {
     if (pageUrl && pageUrl !== HOME_INTERNAL && !isSettingsPage(pageUrl)) {
       try {
         await navigator.clipboard.writeText(pageUrl);
@@ -9658,10 +9677,10 @@ parent.postMessage({ t: 'ready' }, '*');
   };
 
   // ── Tab right-click context menu ──────────────────────────────
-  const tabContextMenu = $("tabContextMenu");
+  const tab上下文Menu = $("tab上下文Menu");
   let tabCtxTargetId = null;
 
-  function openTabContextMenu(tabId, x, y) {
+  function openTab上下文Menu(tabId, x, y) {
     tabCtxTargetId = tabId;
     animateClose(contextMenu, 140, () =>
       contextMenu.classList.remove("active"),
@@ -9686,23 +9705,23 @@ parent.postMessage({ t: 'ready' }, '*');
     closeBtn.disabled = !canClose;
     closeBtn.classList.toggle("disabled", !canClose);
 
-    tabContextMenu.style.left = x + "px";
-    tabContextMenu.style.top = y + "px";
-    tabContextMenu.classList.add("active");
+    tab上下文Menu.style.left = x + "px";
+    tab上下文Menu.style.top = y + "px";
+    tab上下文Menu.classList.add("active");
 
     // Clamp to viewport
     setTimeout(() => {
-      const rect = tabContextMenu.getBoundingClientRect();
+      const rect = tab上下文Menu.getBoundingClientRect();
       if (rect.right > window.innerWidth)
-        tabContextMenu.style.left = window.innerWidth - rect.width - 8 + "px";
+        tab上下文Menu.style.left = window.innerWidth - rect.width - 8 + "px";
       if (rect.bottom > window.innerHeight)
-        tabContextMenu.style.top = window.innerHeight - rect.height - 8 + "px";
+        tab上下文Menu.style.top = window.innerHeight - rect.height - 8 + "px";
     }, 0);
   }
 
-  function closeTabContextMenu() {
-    animateClose(tabContextMenu, 140, () =>
-      tabContextMenu.classList.remove("active"),
+  function closeTab上下文Menu() {
+    animateClose(tab上下文Menu, 140, () =>
+      tab上下文Menu.classList.remove("active"),
     );
     tabCtxTargetId = null;
   }
@@ -9718,11 +9737,11 @@ parent.postMessage({ t: 'ready' }, '*');
       contextMenu.classList.remove("active"),
     );
     const id = parseInt(tabEl.dataset.tabId, 10);
-    openTabContextMenu(id, e.clientX, e.clientY);
+    openTab上下文Menu(id, e.clientX, e.clientY);
   });
 
   document.addEventListener("click", (e) => {
-    if (!tabContextMenu.contains(e.target)) closeTabContextMenu();
+    if (!tab上下文Menu.contains(e.target)) closeTab上下文Menu();
   });
 
   $("tabCtxReload").onclick = () => {
@@ -9747,7 +9766,7 @@ parent.postMessage({ t: 'ready' }, '*');
         }
       }, 50);
     }
-    closeTabContextMenu();
+    closeTab上下文Menu();
   };
 
   $("tabCtxMute").onclick = () => {
@@ -9761,7 +9780,7 @@ parent.postMessage({ t: 'ready' }, '*');
       renderTabs();
       saveTabs();
     }
-    closeTabContextMenu();
+    closeTab上下文Menu();
   };
 
   $("tabCtxClose").onclick = () => {
@@ -9769,7 +9788,7 @@ parent.postMessage({ t: 'ready' }, '*');
     if (tabs.length > 1 && tabCtxTargetId != null) {
       closeTabAnimated(tabCtxTargetId);
     }
-    closeTabContextMenu();
+    closeTab上下文Menu();
   };
   // ── End tab context menu ──────────────────────────────────────
 

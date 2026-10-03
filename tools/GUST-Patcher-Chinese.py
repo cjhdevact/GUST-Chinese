@@ -4,7 +4,7 @@
 GUST Patcher 界面汉化工具
 https://github.com/cjhdevact/GUST-Chinese
 
-适配提交：ec3493ca0cb592bfec661a19581af73aaccdaa1e
+适配提交：78df43014334176ca000bb252efc1185beb893a7
 
 用法:
     python GUST-Patcher-Chinese.py GUST-Patcher.html                  # 原地替换，自动备份 .bak
@@ -12,6 +12,7 @@ https://github.com/cjhdevact/GUST-Chinese
     python GUST-Patcher-Chinese.py GUST-Patcher.html -o out.html      # 指定输出
     python GUST-Patcher-Chinese.py GUST-Patcher.html --keep-made-with # 保留 "Made with by Nautilus Labs"
     python GUST-Patcher-Chinese.py GUST-Patcher.html --keep-github-url # 保留原 GitHub URL
+    python GUST-Patcher-Chinese.py GUST-Patcher.html --no-credit      # 不注入翻译者信息
 """
 
 import re
@@ -24,7 +25,7 @@ from collections import OrderedDict
 #  可配置项
 # ═══════════════════════════════════════════════════════════════════
 INJECT_TRANSLATOR_CREDIT = True    # 首页 tagline 下方注入翻译者信息
-REMOVE_MADE_WITH_CREDIT  = True    # 移除标题栏 "Made with ❤ by Nautilus Labs"
+REMOVE_MADE_WITH_CREDIT  = True    # 移除标题栏 "Made with by Nautilus Labs"
 REPLACE_GITHUB_URL       = True    # 替换显示用 GitHub URL
 
 TRANSLATOR_NAME = 'GUST-Chinese'
@@ -32,8 +33,8 @@ GITHUB_REPO_URL = 'https://github.com/cjhdevact/GUST-Chinese'
 GITHUB_DISPLAY  = 'github.com/cjhdevact/GUST-Chinese'
 
 # ── 源码获取地址（用于修改 Patcher 拉取 GUST 源码的 URL） ──
-SOURCE_RAW_URL = 'https://raw.githubusercontent.com/cjhdevact/GUST-Chinese/main/index.html'
-SOURCE_GH_URL  = 'https://github.com/cjhdevact/GUST-Chinese/raw/refs/heads/main/index.html'
+SOURCE_RAW_URL = 'https://raw.githubusercontent.com/cjhdevact/GUST-Chinese/main/index-CHS.html'
+SOURCE_GH_URL  = 'https://github.com/cjhdevact/GUST-Chinese/raw/refs/heads/main/index-CHS.html'
 SOURCE_PROXY   = 'https://gh-proxy.com/'
 
 # ═══════════════════════════════════════════════════════════════════
@@ -81,40 +82,26 @@ REPLACEMENTS = OrderedDict([
     ('>Core Features<',                   '>核心功能<'),
 
     # ═══════════════════════════════════════════════════════════
-    #  侧边栏导航项
+    #  侧边栏导航项（含新 AI Assistant）
     # ═══════════════════════════════════════════════════════════
-    ('<span class="nav-label">Home</span>',
-                                          '<span class="nav-label">主页</span>'),
-    ('<span class="nav-label">Connection</span>',
-                                          '<span class="nav-label">连接</span>'),
-    ('<span class="nav-label">Fallback</span>',
-                                          '<span class="nav-label">回退</span>'),
-    ('<span class="nav-label">Search</span>',
-                                          '<span class="nav-label">搜索</span>'),
-    ('<span class="nav-label">Privacy</span>',
-                                          '<span class="nav-label">隐私</span>'),
-    ('<span class="nav-label">Cache</span>',
-                                          '<span class="nav-label">缓存</span>'),
+    ('<span class="nav-label">Home</span>',        '<span class="nav-label">主页</span>'),
+    ('<span class="nav-label">Connection</span>',  '<span class="nav-label">连接</span>'),
+    ('<span class="nav-label">Fallback</span>',    '<span class="nav-label">回退</span>'),
+    ('<span class="nav-label">AI Assistant</span>','<span class="nav-label">AI 助手</span>'),
+    ('<span class="nav-label">Search</span>',      '<span class="nav-label">搜索</span>'),
+    ('<span class="nav-label">Privacy</span>',     '<span class="nav-label">隐私</span>'),
+    ('<span class="nav-label">Cache</span>',       '<span class="nav-label">缓存</span>'),
     ('<span class="nav-label">Files &amp; Media</span>',
-                                          '<span class="nav-label">文件与媒体</span>'),
-    ('<span class="nav-label">Appearance</span>',
-                                          '<span class="nav-label">外观</span>'),
-    ('<span class="nav-label">Home Screen</span>',
-                                          '<span class="nav-label">主页设置</span>'),
-    ('<span class="nav-label">Shortcuts</span>',
-                                          '<span class="nav-label">快捷键</span>'),
-    ('<span class="nav-label">Language</span>',
-                                          '<span class="nav-label">语言</span>'),
-    ('<span class="nav-label">Tutorial</span>',
-                                          '<span class="nav-label">教程</span>'),
-    ('<span class="nav-label">Tab System</span>',
-                                          '<span class="nav-label">标签页系统</span>'),
-    ('<span class="nav-label">Ad Blocker</span>',
-                                          '<span class="nav-label">广告拦截</span>'),
-    ('<span class="nav-label">Dev Tools</span>',
-                                          '<span class="nav-label">开发者工具</span>'),
-    ('<span class="nav-label">Metrics</span>',
-                                          '<span class="nav-label">指标</span>'),
+                                                    '<span class="nav-label">文件与媒体</span>'),
+    ('<span class="nav-label">Appearance</span>',  '<span class="nav-label">外观</span>'),
+    ('<span class="nav-label">Home Screen</span>', '<span class="nav-label">主页设置</span>'),
+    ('<span class="nav-label">Shortcuts</span>',   '<span class="nav-label">快捷键</span>'),
+    ('<span class="nav-label">Language</span>',    '<span class="nav-label">语言</span>'),
+    ('<span class="nav-label">Tutorial</span>',    '<span class="nav-label">教程</span>'),
+    ('<span class="nav-label">Tab System</span>',  '<span class="nav-label">标签页系统</span>'),
+    ('<span class="nav-label">Ad Blocker</span>',  '<span class="nav-label">广告拦截</span>'),
+    ('<span class="nav-label">Dev Tools</span>',   '<span class="nav-label">开发者工具</span>'),
+    ('<span class="nav-label">Metrics</span>',     '<span class="nav-label">指标</span>'),
 
     # ═══════════════════════════════════════════════════════════
     #  首页 - Hero 区
@@ -123,7 +110,7 @@ REPLACEMENTS = OrderedDict([
                                           '>下载前自定义你的 GUST 构建版本。<'),
 
     # ═══════════════════════════════════════════════════════════
-    #  首页 - 预设卡片标题 / 按钮
+    #  首页 - 预设卡片
     # ═══════════════════════════════════════════════════════════
     ('>Base GUST<',                         '>基础版 GUST<'),
     ('<span class="recommended-badge"><i class="fas fa-star" style="font-size:8px;"></i> Recommended</span>',
@@ -151,6 +138,7 @@ REPLACEMENTS = OrderedDict([
     #  Section 标题
     # ═══════════════════════════════════════════════════════════
     ('<div class="section-title">Language</div>',    '<div class="section-title">语言</div>'),
+    ('<div class="section-title">AI Assistant</div>','<div class="section-title">AI 助手</div>'),
     ('<div class="section-title">Connection</div>',  '<div class="section-title">连接</div>'),
     ('<div class="section-title">Fallback WISP</div>','<div class="section-title">回退 WISP</div>'),
     ('<div class="section-title">Search</div>',      '<div class="section-title">搜索</div>'),
@@ -180,6 +168,11 @@ REPLACEMENTS = OrderedDict([
     ('>Show Fallback in Settings Sidebar<',   '>在设置侧边栏显示「回退」<'),
     ("Uncheck to remove the <strong>Fallback</strong> entry from GUST's Settings sidebar. The fallback toggle, fallback WISP URL, retry policy, and error triggers will all be hidden from Settings.",
                                             '取消勾选即从 GUST 设置侧边栏中移除 <strong>回退</strong> 入口。回退开关、回退 WISP 地址、重试策略和错误触发条件都将从设置中隐藏。'),
+
+    # ── 新增：AI Assistant 侧边栏主控 ──
+    ('>Show AI Assistant in Settings Sidebar<', '>在设置侧边栏显示「AI 助手」<'),
+    ("Uncheck to remove the <strong>AI Assistant</strong> entry from GUST's Settings sidebar and hide the AI toolbar button entirely. The assistant panel and all its settings will be inaccessible.",
+                                            '取消勾选即从 GUST 设置侧边栏中移除 <strong>AI 助手</strong> 入口，并完全隐藏 AI 工具栏按钮。助手面板及其所有设置将无法访问。'),
 
     ('>Show Search in Settings Sidebar<',     '>在设置侧边栏显示「搜索」<'),
     ("Uncheck to remove the <strong>Search</strong> entry from GUST's Settings sidebar. The search engine picker, spellcheck toggle, and favicon proxy option will all be hidden from Settings.",
@@ -219,6 +212,7 @@ REPLACEMENTS = OrderedDict([
     #  卡片头
     # ═══════════════════════════════════════════════════════════
     ('</i> Language',                       '</i> 语言'),
+    ('</i> Context',                        '</i> 上下文'),   # 新增：AI Assistant 面板内的卡片头
     ('</i> WISP Server',                    '</i> WISP 服务器'),
     ('</i> Concurrent Requests',            '</i> 并发请求'),
     ('</i> WebRTC Blocking',                '</i> WebRTC 拦截'),
@@ -228,6 +222,7 @@ REPLACEMENTS = OrderedDict([
     ('</i> Retry Policy',                   '</i> 重试策略'),
     ('</i> Error Triggers',                 '</i> 错误触发条件'),
     ('</i> Default Search Engine',          '</i> 默认搜索引擎'),
+    ('</i> Custom Search Engine',           '</i> 自定义搜索引擎'),
     ('</i> Spellcheck <span class="broken-tag">[BROKEN]</span>',
                                             '</i> 拼写检查 <span class="broken-tag">[已损坏]</span>'),
     ('</i> Tab Favicons',                   '</i> 标签页图标'),
@@ -263,6 +258,8 @@ REPLACEMENTS = OrderedDict([
     #  patch-row 标签
     # ═══════════════════════════════════════════════════════════
     ('>Preferred language picker<',         '>首选语言选择器<'),
+    # ── 新增：AI Assistant 面板内的 patch-row ──
+    ('>Page context by default<',           '>默认使用页面上下文<'),
     ('>WebSocket URL input<',               '>WebSocket 地址输入框<'),
     ('>Idle &amp; active thread steppers<', '>空闲与活跃线程步进器<'),
     ('>Block WebRTC connections<',          '>拦截 WebRTC 连接<'),
@@ -272,7 +269,9 @@ REPLACEMENTS = OrderedDict([
     ('>Main &amp; fallback retry counters + delay<', '>主服务器与回退重试次数 + 延迟<'),
     ('>5xx / timeout / DNS trigger toggles<','>5xx / 超时 / DNS 触发开关<'),
     ('>Search engine picker<',              '>搜索引擎选择器<'),
-    ('>Enable spellcheck <span class="broken-tag">broken</span><', '>启用拼写检查 <span class="broken-tag">已损坏</span><'),
+    ('>Custom search engine card<',         '>自定义搜索引擎卡片<'),
+    ('>Enable spellcheck <span class="broken-tag">broken</span><',
+                                            '>启用拼写检查 <span class="broken-tag">已损坏</span><'),
     ('>Proxy favicons through WISP<',       '>通过 WISP 代理网站图标<'),
     ('>Ad &amp; Tracker Blocking toggle<',  '>广告与跟踪器拦截开关<'),
     ('>"Pause for this site" button<',      '>"对此网站暂停" 按钮<'),
@@ -315,6 +314,11 @@ REPLACEMENTS = OrderedDict([
     # ═══════════════════════════════════════════════════════════
     ('Removes the language selector from Settings.',
                                             '从设置中移除语言选择器。'),
+
+    # ── 新增：AI Assistant 的 patch-row 描述 ──
+    ('<strong>Uncheck to disable</strong> the "Page Context by default" setting and remove its toggle from Settings › AI Assistant. The assistant will never automatically receive the current page\'s content when opened.',
+                                            '<strong>取消勾选即禁用</strong>「默认使用页面上下文」设置，并从设置 › AI 助手中移除其开关。助手打开时将不再自动接收当前页面的内容。'),
+
     ('<strong>Uncheck to remove</strong> the WISP server URL input from Settings. The default server (wss://wisp.mercurywork.shop/) will always be used with no way to change it at runtime.',
                                             '<strong>取消勾选即移除</strong> 设置中的 WISP 服务器地址输入框。将始终使用默认服务器（wss://wisp.mercurywork.shop/），运行时无法更改。'),
     ('<strong>Uncheck to remove</strong> the thread count controls and retry counters from Settings. Defaults (idle: 3, active: 6, retries: 3) will be locked in permanently.',
@@ -333,6 +337,8 @@ REPLACEMENTS = OrderedDict([
                                             '<strong>取消勾选即移除</strong> 设置中的错误触发开关。默认情况下，回退会在所有通用连接错误时触发（5xx 和超时触发器默认开启，DNS 触发器默认关闭）。'),
     ('<strong>Uncheck to remove</strong> the search engine selector from Settings. Brave Search will be locked in as the default with no way to change it.',
                                             '<strong>取消勾选即移除</strong> 设置中的搜索引擎选择器。Brave 搜索将被锁定为默认，无法更改。'),
+    ("<strong>Uncheck to remove</strong> the custom search engine config card from Settings. The <strong>Custom</strong> option will still appear in the engine picker but its name/URL card will be hidden.",
+                                            '<strong>取消勾选即移除</strong> 设置中的自定义搜索引擎配置卡片。<strong>自定义</strong> 选项仍会出现在引擎选择器中，但其名称/网址卡片将被隐藏。'),
     ("<strong>Uncheck to remove</strong> the spellcheck toggle from Settings. Only affects GUST's own UI inputs — spellcheck inside proxied pages cannot be controlled and remains non-functional.",
                                             '<strong>取消勾选即移除</strong> 设置中的拼写检查开关。仅影响 GUST 自身的界面输入框——代理页面内的拼写检查无法控制，且一直处于失效状态。'),
     ("<strong>Uncheck to disable</strong> favicon proxying through WISP and remove its toggle from Settings. Google's favicon service will be used instead — favicons may not load on some networks.",
@@ -451,7 +457,7 @@ REPLACEMENTS = OrderedDict([
                                             "body: '源码加载完成后，点击此处构建并下载你的自定义 GUST。必须至少取消勾选一个补丁才能启用此按钮——如果你想要未修改的构建，请使用主页上的 <strong>基础版 GUST</strong> 卡片。'"),
     ("title: 'Quick Presets'",              "title: '快速预设'"),
     ("body: 'Need a fast start? Grab <strong>Base GUST</strong> straight from GitHub, or <strong>GUST Lite</strong> — a trimmed build with bloat already removed.'",
-                                            "body: '需要快速开始？直接获取来自 GitHub 的 <strong>基础版 GUST</strong>，或 <strong>GUST 精简版</strong>——已经移除了冗余功能的精简构建。'"),
+                                            "body: '需要快速开始？直接获取来自 GitHub 的 <strong>基础版 GUST</strong>，或 <strong>GUST Lite</strong>——已经移除了冗余功能的精简构建。'"),
     ("title: 'Default selections = base GUST'", "title: '默认选择 = 基础版 GUST'"),
     ("body: 'All currently checked patches represent the default base GUST build. Uncheck anything you want to remove before downloading.'",
                                             "body: '当前所有已勾选的补丁代表默认的基础版 GUST 构建。下载前取消勾选你想移除的任何项。'"),
@@ -485,9 +491,8 @@ REPLACEMENTS = OrderedDict([
     #  Paste 弹窗
     # ═══════════════════════════════════════════════════════════
     ('>Paste GUST Source<',                 '>粘贴 GUST 源码<'),
-    # 段落里三行中间有空白+换行，key 用单空格 key_to_pattern 自动处理
-    ('Download <code style="background:var(--bg3);padding:1px 5px;border-radius:4px;">index.html</code> from <a href="https://github.com/cjhdevact/GUST-Chinese" target="_blank" style="color:var(--ac)">github.com/cjhdevact/GUST-Chinese</a> then paste the full file contents below.',
-                                            '从 <a href="https://github.com/cjhdevact/GUST-Chinese" target="_blank" style="color:var(--ac)">github.com/cjhdevact/GUST-Chinese</a> 下载 <code style="background:var(--bg3);padding:1px 5px;border-radius:4px;">index.html</code>，然后将完整的文件内容粘贴到下方。'),
+    ('Download <code style="background:var(--bg3);padding:1px 5px;border-radius:4px;">index.html</code> from <a href="https://github.com/nautilus-os/GUST" target="_blank" style="color:var(--ac)">github.com/nautilus-os/GUST</a> then paste the full file contents below.',
+     '从 <a href="https://github.com/cjhdevact/GUST-Chinese" target="_blank" style="color:var(--ac)">github.com/cjhdevact/GUST-Chinese</a> 下载 <code style="background:var(--bg3);padding:1px 5px;border-radius:4px;">index.html</code>，然后将完整的文件内容粘贴到下方。'),
     ('placeholder="Paste the full GUST HTML here…"',
                                             'placeholder="在此粘贴完整的 GUST HTML…"'),
     ('>Cancel<',                            '>取消<'),
@@ -505,6 +510,12 @@ REPLACEMENTS = OrderedDict([
                                             '>或在下方手动粘贴 GUST 源码：<'),
     ("placeholder=\"Paste the full GUST HTML here (download from github.com/nautilus-os/GUST)…\"",
                                             "placeholder=\"在此粘贴完整的 GUST HTML（从 GitHub 下载）…\""),
+                                            
+    # ═══════════════════════════════════════════════════════════
+    #  侧边栏分区标签（补充）
+    # ═══════════════════════════════════════════════════════════
+    ('<div class="sidebar-core-label">Settings</div>',
+     '<div class="sidebar-core-label">设置</div>'),
 
 ])
 
@@ -600,7 +611,6 @@ def rewrite_source_urls(html: str, counts: dict) -> str:
     """修改 Patcher 拉取 GUST 源码的 URL 与获取渠道。"""
     n_raw = n_gh = n_att = n_hard = 0
 
-    # 1. const RAW_URL = '...'  →  指向 cjhdevact/GUST-Chinese
     html, n1 = re.subn(
         r"const\s+RAW_URL\s*=\s*'[^']*';",
         f"const RAW_URL = '{SOURCE_RAW_URL}';",
@@ -608,7 +618,6 @@ def rewrite_source_urls(html: str, counts: dict) -> str:
     )
     n_raw += n1
 
-    # 2. const GH_URL = '...'  →  指向 cjhdevact/GUST-Chinese
     html, n2 = re.subn(
         r"const\s+GH_URL\s*=\s*'[^']*';",
         f"const GH_URL  = '{SOURCE_GH_URL}';",
@@ -616,7 +625,6 @@ def rewrite_source_urls(html: str, counts: dict) -> str:
     )
     n_gh += n2
 
-    # 3. attempts 数组：4 个渠道 → 2 个（GitHub Raw + gh-proxy）
     html, n3 = re.subn(
         r"const\s+attempts\s*=\s*\[[\s\S]*?\n\s*\];",
         NEW_ATTEMPTS,
@@ -624,7 +632,6 @@ def rewrite_source_urls(html: str, counts: dict) -> str:
     )
     n_att += n3
 
-    # 4. downloadBaseGUST 里硬编码的 jsDelivr fetch
     html, n4 = re.subn(
         r"fetch\('https://cdn\.jsdelivr\.net/gh/nautilus-os/GUST@main/index\.html',\s*\{cache:'no-store'\}\)",
         "fetch(RAW_URL, {cache:'no-store'})",
@@ -632,7 +639,6 @@ def rewrite_source_urls(html: str, counts: dict) -> str:
     )
     n_hard += n4
 
-    # 5. downloadBaseGUST 里硬编码的 GitHub fallback
     html, n5 = re.subn(
         r"window\.open\('https://github\.com/nautilus-os/GUST/raw/refs/heads/main/index\.html','_blank'\)",
         "window.open(GH_URL,'_blank')",
@@ -640,10 +646,10 @@ def rewrite_source_urls(html: str, counts: dict) -> str:
     )
     n_hard += n5
 
-    if n_raw:    counts['__raw_url__'] = n_raw
-    if n_gh:     counts['__gh_url__'] = n_gh
-    if n_att:    counts['__attempts__'] = n_att
-    if n_hard:   counts['__hardcoded_url__'] = n_hard
+    if n_raw:  counts['__raw_url__']  = n_raw
+    if n_gh:   counts['__gh_url__']   = n_gh
+    if n_att:  counts['__attempts__'] = n_att
+    if n_hard: counts['__hardcoded_url__'] = n_hard
     return html
 
 
@@ -684,7 +690,7 @@ def inject_translator_credit(html: str, counts: dict) -> str:
 # ═══════════════════════════════════════════════════════════════════
 
 def main():
-    ap = argparse.ArgumentParser(description="GUST Patcher 界面汉化工具")
+    ap = argparse.ArgumentParser(description="GUST Patcher 界面汉化工具（新版）")
     ap.add_argument("input", help="输入 HTML 文件（GUST-Patcher.html）")
     ap.add_argument("-o", "--output", help="输出文件（默认覆盖输入并备份 .bak）")
     ap.add_argument("--dry-run", action="store_true", help="仅显示替换统计，不写文件")
@@ -708,7 +714,6 @@ def main():
     counts = {}
     result = localize(text, REPLACEMENTS, pattern, counts)
 
-    # 修改源码获取地址与渠道
     result = rewrite_source_urls(result, counts)
 
     if REMOVE_MADE_WITH_CREDIT and not args.keep_made_with:

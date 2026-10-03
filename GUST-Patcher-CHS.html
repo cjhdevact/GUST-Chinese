@@ -106,6 +106,9 @@ button,input,select,textarea{font:inherit}
 @keyframes _gust-flick   { 0%,100%{transform:rotate(0) scale(1)} 25%{transform:rotate(-8deg) scale(1.15)} 60%{transform:rotate(6deg) scale(.95)} }
 @keyframes _gust-jolt    { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-4px)} 50%{transform:translateX(5px)} 75%{transform:translateX(-2px)} }
 @keyframes _gust-stamp   { 0%{transform:scale(1) translateY(0)} 35%{transform:scale(.82) translateY(3px)} 65%{transform:scale(1.12) translateY(-2px)} 100%{transform:scale(1) translateY(0)} }
+/* AI Assistant — wand: flick (magic tap) */
+@keyframes _gust-wand-tap { 0%{transform:rotate(0) scale(1)} 25%{transform:rotate(-10deg) scale(1.15)} 60%{transform:rotate(8deg) scale(.95)} 100%{transform:rotate(0) scale(1)} }
+.settings-nav-item[data-section="aiassistant"]:hover i { animation: _gust-wand-tap .35s ease-in-out forwards; }
 /* Connection — wired: pulse like signal */
 .settings-nav-item[data-section="connection"]:hover i { animation: _gust-pulse .55s cubic-bezier(.34,1.56,.64,1) forwards; }
 /* Search — magnifying glass: bob */
@@ -298,10 +301,11 @@ button,input,select,textarea{font:inherit}
       <button class="settings-nav-item active" data-section="homepage"><i class="fas fa-house-chimney"></i><span class="nav-label">主页</span></button>
     </nav>
     <hr class="sidebar-divider" style="margin:4px 12px 8px">
-    <div class="sidebar-core-label">Settings</div>
+    <div class="sidebar-core-label">设置</div>
     <nav id="settingsNav2" style="padding:0 12px;">
       <button class="settings-nav-item" data-section="connection"><i class="fas fa-network-wired"></i><span class="nav-label">连接</span><span class="nav-count" id="nc-connection"></span></button>
       <button class="settings-nav-item" data-section="fallback"><i class="fas fa-rotate-left"></i><span class="nav-label">回退</span><span class="nav-count" id="nc-fallback"></span></button>
+      <button class="settings-nav-item" data-section="aiassistant"><i class="fas fa-wand-magic-sparkles"></i><span class="nav-label">AI 助手</span><span class="nav-count" id="nc-aiassistant"></span></button>
       <button class="settings-nav-item" data-section="search"><i class="fas fa-magnifying-glass"></i><span class="nav-label">搜索</span><span class="nav-count" id="nc-search"></span></button>
       <button class="settings-nav-item" data-section="privacy"><i class="fas fa-shield-halved"></i><span class="nav-label">隐私</span><span class="nav-count" id="nc-privacy"></span></button>
       <button class="settings-nav-item" data-section="cache"><i class="fas fa-database"></i><span class="nav-label">缓存</span><span class="nav-count" id="nc-cache"></span></button>
@@ -370,7 +374,7 @@ button,input,select,textarea{font:inherit}
         <div class="preset-card-desc">移除线程控制、网站图标代理、WebRTC 拦截、智能请求头、拼写检查、请求与页面 User-Agent 伪装、开发者控制台日志、元素检查器、指标和语言选择器。</div>
       </div>
       <div class="preset-card-footer">
-        <button class="preset-dl-btn primary" id="presetStealthBtn" onclick="downloadPreset('stealth')" disabled><i class="fas fa-download"></i> 下载 GUST 精简版</button>
+        <button class="preset-dl-btn primary" id="presetLiteBtn" onclick="downloadLite()" disabled><i class="fas fa-download"></i> 下载 GUST 精简版</button>
       </div>
     </div>
 
@@ -392,6 +396,25 @@ button,input,select,textarea{font:inherit}
     <div class="settings-card-head"><i class="fas fa-language"></i> 语言</div>
     <div class="settings-card-body">
       <div class="patch-row"><div class="patch-row-info"><div class="patch-row-label">首选语言选择器</div><div class="patch-row-desc">从设置中移除语言选择器。</div></div><div class="patch-check checked" data-patch="language" data-section="language" onclick="togglePatch(this)"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- AI ASSISTANT -->
+<div class="settings-section" data-section="aiassistant">
+  <div class="section-head"><div class="section-title">AI 助手</div><div class="select-btns"><button class="select-btn" onclick="selectAll('aiassistant',true)">全选</button><span class="select-sep">·</span><button class="select-btn" onclick="selectAll('aiassistant',false)">全不选</button></div></div>
+  <div class="sidebar-master-bar">
+    <div class="sidebar-master-bar-icon"><i class="fas fa-wand-magic-sparkles"></i></div>
+    <div class="sidebar-master-bar-info">
+      <div class="sidebar-master-bar-label">在设置侧边栏显示「AI 助手」</div>
+      <div class="sidebar-master-bar-desc">取消勾选即从 GUST 设置侧边栏中移除 <strong>AI 助手</strong> 入口，并完全隐藏 AI 工具栏按钮。助手面板及其所有设置将无法访问。</div>
+    </div>
+    <div class="sidebar-master-check checked" data-patch="sidebar-nav-aiassistant" data-section="aiassistant" data-master-for="ai-context" onclick="toggleSidebarMaster(this)"></div>
+  </div>
+  <div class="settings-card">
+    <div class="settings-card-head"><i class="fas fa-wand-magic-sparkles"></i> 上下文</div>
+    <div class="settings-card-body">
+      <div class="patch-row"><div class="patch-row-info"><div class="patch-row-label">默认使用页面上下文</div><div class="patch-row-desc"><strong>取消勾选即禁用</strong>「默认使用页面上下文」设置，并从设置 › AI 助手中移除其开关。助手打开时将不再自动接收当前页面的内容。</div></div><div class="patch-check checked" data-patch="ai-context" data-section="aiassistant" onclick="togglePatch(this)"></div></div>
     </div>
   </div>
 </div>
@@ -479,12 +502,18 @@ button,input,select,textarea{font:inherit}
       <div class="sidebar-master-bar-label">在设置侧边栏显示「搜索」</div>
       <div class="sidebar-master-bar-desc">取消勾选即从 GUST 设置侧边栏中移除 <strong>搜索</strong> 入口。搜索引擎选择器、拼写检查开关和网站图标代理选项都将从设置中隐藏。</div>
     </div>
-    <div class="sidebar-master-check checked" data-patch="sidebar-nav-search" data-section="search" data-master-for="search-engine spellcheck search-favicon" onclick="toggleSidebarMaster(this)"></div>
+    <div class="sidebar-master-check checked" data-patch="sidebar-nav-search" data-section="search" data-master-for="search-engine custom-search-engine spellcheck search-favicon" onclick="toggleSidebarMaster(this)"></div>
   </div>
   <div class="settings-card">
     <div class="settings-card-head"><i class="fas fa-magnifying-glass"></i> 默认搜索引擎</div>
     <div class="settings-card-body">
       <div class="patch-row"><div class="patch-row-info"><div class="patch-row-label">搜索引擎选择器</div><div class="patch-row-desc"><strong>取消勾选即移除</strong> 设置中的搜索引擎选择器。Brave 搜索将被锁定为默认，无法更改。</div></div><div class="patch-check checked" data-patch="search-engine" data-section="search" onclick="togglePatch(this)"></div></div>
+    </div>
+  </div>
+  <div class="settings-card">
+    <div class="settings-card-head"><i class="fas fa-pen"></i> 自定义搜索引擎</div>
+    <div class="settings-card-body">
+      <div class="patch-row"><div class="patch-row-info"><div class="patch-row-label">自定义搜索引擎卡片</div><div class="patch-row-desc"><strong>取消勾选即移除</strong> 设置中的自定义搜索引擎配置卡片。<strong>自定义</strong> 选项仍会出现在引擎选择器中，但其名称/网址卡片将被隐藏。</div></div><div class="patch-check checked" data-patch="custom-search-engine" data-section="search" onclick="togglePatch(this)"></div></div>
     </div>
   </div>
   <div class="settings-card">
@@ -841,8 +870,8 @@ button,input,select,textarea{font:inherit}
 </div>
 <script>
 let sourceHTML = '', sourceLoaded = false;
-const RAW_URL = 'https://raw.githubusercontent.com/cjhdevact/GUST-Chinese/main/index.html';
-const GH_URL  = 'https://github.com/cjhdevact/GUST-Chinese/raw/refs/heads/main/index.html';
+const RAW_URL = 'https://raw.githubusercontent.com/cjhdevact/GUST-Chinese/main/index-CHS.html';
+const GH_URL  = 'https://github.com/cjhdevact/GUST-Chinese/raw/refs/heads/main/index-CHS.html';
 
 // Default checked state for all patches (all checked by default)
 function resetCheckboxesToDefault() {
@@ -1153,9 +1182,7 @@ document.getElementById('pasteSourceBtn').addEventListener('click', () => {
         <span style="font-size:15px;font-weight:700;color:var(--tx)"><i class="fas fa-paste" style="color:var(--ac);margin-right:8px;"></i>粘贴 GUST 源码</span>
       </div>
       <p style="font-size:12px;color:var(--tx3);line-height:1.6;">
-        Download <code style="background:var(--bg3);padding:1px 5px;border-radius:4px;">index.html</code> from
-        <a href="https://github.com/cjhdevact/GUST-Chinese" target="_blank" style="color:var(--ac)">github.com/cjhdevact/GUST-Chinese</a>
-        then paste the full file contents below.
+        从 <a href="https://github.com/cjhdevact/GUST-Chinese" target="_blank" style="color:var(--ac)">github.com/cjhdevact/GUST-Chinese</a> 下载 <code style="background:var(--bg3);padding:1px 5px;border-radius:4px;">index.html</code>，然后将完整的文件内容粘贴到下方。
       </p>
       <textarea id="pasteModalInput" placeholder="在此粘贴完整的 GUST HTML…"
         style="width:100%;height:160px;background:var(--bg3);border:1px solid var(--bd);border-radius:8px;
@@ -1266,6 +1293,7 @@ function buildPatchScript(removedPatches) {
 
   // ---- Sidebar nav hide rules (hides the nav item in GUST Browser Settings) ----
   if (rm.has('sidebar-nav-connection'))    css('.settings-nav-item[data-section=\"connection\"]');
+  if (rm.has('sidebar-nav-aiassistant'))   css('.settings-nav-item[data-section=\"aiassistant\"]');
   if (rm.has('sidebar-nav-fallback'))      css('.settings-nav-item[data-section=\"fallback\"]');
   if (rm.has('sidebar-nav-search'))        css('.settings-nav-item[data-section=\"search\"]');
   if (rm.has('sidebar-nav-privacy'))       css('.settings-nav-item[data-section=\"privacy\"]');
@@ -1298,18 +1326,26 @@ function buildPatchScript(removedPatches) {
   if (rm.has('nt-clock24'))      { ls('gust:24hrclock:v1','false'); }
   if (rm.has('shortcuts-panel')) { ls('gust:shortcutsEnabled','0'); }
   if (rm.has('tutorial-auto') || rm.has('tutorial-include')) {
-    // Seed all known tutorial key variants (bare + instance-prefixed via ls() helper)
-    ls('gust:tutorial','done'); ls('gust:tutorial:done','1'); ls('gust:tutorial:v1','done');
+    ls('gust:tutorial:v1','done');
   }
   if (rm.has('fallback-enabled'))  { ls('gust:fallback:enabled','0'); }
   if (rm.has('fallback-5xx'))      { ls('gust:fallback:5xx','0'); }
   if (rm.has('fallback-timeout'))  { ls('gust:fallback:timeout','0'); }
   if (rm.has('fallback-dns'))      { ls('gust:fallback:dns','0'); }
+  if (rm.has('ai-context'))        { ls('gust_ai_ctx','false'); }
 
   // ---- CSS hide rules (selectors verified against GUST source) ----
   // Each rule hides the settings UI element when that patch is removed.
   // NOTE: these only hide the settings option — the feature itself is
   // disabled via the localStorage pre-seeds above.
+
+  // AI Assistant
+  // ai-context is child of sidebar-nav-aiassistant
+  if (rm.has('sidebar-nav-aiassistant')) {
+    css('#aiBtn,#aiSidebar');
+  }
+  if (rm.has('ai-context'))
+    (rm.has('sidebar-nav-aiassistant') ? badge : css)('#settingsAiContextSwitch');
 
   // Connection
   // wisp-url, threads, webrtc-block, media-headers are children of sidebar-nav-connection
@@ -1352,9 +1388,11 @@ function buildPatchScript(removedPatches) {
   }
 
   // Search
-  // search-engine, spellcheck, search-favicon are children of sidebar-nav-search
+  // search-engine, custom-search-engine, spellcheck, search-favicon are children of sidebar-nav-search
   if (rm.has('search-engine'))
     css('#settingsEngineRows');
+  if (rm.has('custom-search-engine'))
+    (rm.has('sidebar-nav-search') ? badge : css)('#customSearchCard');
   if (rm.has('spellcheck')) {
     // Show a "broken" warning badge (special case — spellcheck doesn't actually work)
     js('(function(){');
@@ -1553,10 +1591,11 @@ function buildPatchScript(removedPatches) {
     js('})();');
     css('.tab-drag-ghost,.tab-drag-slot,.tab-dragging');
   }
-  if (rm.has('tab-context')) stubFns(['showTabContext','tabContextMenu','openTabMenu']);
-  if (rm.has('dev-logs'))      stubFns(['initLogPanel','toggleLogPanel','addLog','logRequest','toggleLogs']);
-  if (rm.has('dev-inspector')) stubFns(['initInspector','toggleInspector','inspectElement','toggleElements']);
-  if (rm.has('metrics'))       stubFns(['initMetrics','updateMetrics','toggleMetrics','startMetrics','showMetrics','hideMetrics']);
+  if (rm.has('sidebar-nav-aiassistant')) stubFns(['openAI','closeAI']);
+  if (rm.has('tab-context')) stubFns([]);
+  if (rm.has('dev-logs'))      stubFns(['toggleLogs']);
+  if (rm.has('dev-inspector')) stubFns(['toggleElements']);
+  if (rm.has('metrics'))       stubFns(['showMetrics','hideMetrics']);
 
   // ---- Assemble payload and base64-encode it ----
   // The payload is encoded so that no special characters (backticks, <\/script>,
@@ -1593,7 +1632,7 @@ function buildPatchScript(removedPatches) {
   out += '(function(){\n';
   out += '  var b=' + JSON.stringify(b64) + ';\n';
   out += '  var c=decodeURIComponent(escape(atob(b)));\n';
-  out += '  try{eval(c);}catch(e){console.error("[GUST Patcher] patch failed:",e);}\n';
+  out += '  try{new Function(c)();}catch(e){console.error("[GUST Patcher] patch failed:",e);}\n';
   out += '})();\n';
   out += '<\/script>';
   return '\n' + out + '\n';
@@ -1698,7 +1737,7 @@ const patcherTutSteps = [
   {
     icon: '<i class="fas fa-box-open"></i>',
     title: '快速预设',
-    body: '需要快速开始？直接获取来自 GitHub 的 <strong>基础版 GUST</strong>，或 <strong>GUST 精简版</strong>——已经移除了冗余功能的精简构建。',
+    body: '需要快速开始？直接获取来自 GitHub 的 <strong>基础版 GUST</strong>，或 <strong>GUST Lite</strong>——已经移除了冗余功能的精简构建。',
     pos: 'above',
     pad: 10,
     cloneSelector: '#homepagePresets .preset-card',
@@ -2063,27 +2102,19 @@ const LITE_PATCHES = [
   'spellcheck','search-favicon','ua-request','ua-page',
   'dev-logs','dev-inspector','metrics','language'
 ];
-const CLASSROOM_PATCHES = [
-  'wisp-url','threads','webrtc-block','clear-cache',
-  'shortcuts-panel','core-devtools','tutorial-include','tutorial-auto','tutorial-settings','adblock-toggle'
-];
 
-function downloadPreset(name) {
+function downloadLite() {
   if (!sourceLoaded || !sourceHTML) {
     alert('源码尚未加载。');
     return;
   }
-  const presetEnabled = name === 'stealth' ? LITE_PATCHES : CLASSROOM_PATCHES;
-  // Save current state
   const saved = {};
   document.querySelectorAll('.patch-check[data-patch]').forEach(el => {
     saved[el.dataset.patch] = el.classList.contains('checked');
   });
-  // Apply preset: check only the preset patches
   document.querySelectorAll('.patch-check[data-patch]').forEach(el => {
-    el.classList.toggle('checked', presetEnabled.includes(el.dataset.patch));
+    el.classList.toggle('checked', LITE_PATCHES.includes(el.dataset.patch));
   });
-  // Build using the existing logic
   const removed = [
     ...[...document.querySelectorAll('.patch-check[data-patch]')]
       .filter(e => !e.classList.contains('checked'))
@@ -2102,14 +2133,13 @@ function downloadPreset(name) {
       if (firstScript !== -1) html = html.slice(0, firstScript) + patchScript + html.slice(firstScript);
     }
   }
-  const stamp = '<!-- GUST Patcher preset:' + name + ' build ' + new Date().toISOString() + ' -->';
+  const stamp = '<!-- GUST Patcher preset:lite build ' + new Date().toISOString() + ' -->';
   html = html.replace(/<!doctype html>/i, '<!doctype html>\n' + stamp);
-  // Restore saved state
   document.querySelectorAll('.patch-check[data-patch]').forEach(el => {
     el.classList.toggle('checked', saved[el.dataset.patch]);
   });
   updateCounts();
-  triggerDownload(html, name === 'stealth' ? 'GUST-Lite.html' : 'gust-' + name + '.html');
+  triggerDownload(html, 'GUST-Lite.html');
 }
 
 function triggerDownload(content, filename) {
@@ -2124,7 +2154,7 @@ function triggerDownload(content, filename) {
 
 function updatePresetButtons() {
   const can = sourceLoaded && !!sourceHTML;
-  const s = document.getElementById('presetStealthBtn');
+  const s = document.getElementById('presetLiteBtn');
   if (s) s.disabled = !can;
 }
 

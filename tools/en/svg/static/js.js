@@ -132,9 +132,9 @@
 
   let WISP = (function () {
     try {
-      return ls.getItem("gust:wisp:v1") || "wss://wisp.mercurywork.shop/";
+      return ls.getItem("gust:wisp:v1") || "wss://wisp.rhw.one/wisp/";
     } catch {
-      return "wss://wisp.mercurywork.shop/";
+      return "wss://wisp.rhw.one/wisp/";
     }
   })();
   const $ = (s) => document.getElementById(s);
@@ -1785,7 +1785,7 @@
 
   async function initCache() {
     return new Promise((resolve, reject) => {
-      const req = indexedDB.open(_IDB_PFX + "ProxyCache", 1);
+      const req = indexedDB.open(_IDB_PFX + "ProxyCache", 2);
       req.onerror = () => reject(req.error);
       req.onsuccess = () => {
         cacheDB = req.result;
@@ -1795,9 +1795,13 @@
       req.onupgradeneeded = (e) => {
         const db = e.target.result;
         if (!db.objectStoreNames.contains("resources")) {
-          db.createObjectStore("resources", {
-            keyPath: "url",
-          });
+          const store = db.createObjectStore("resources", { keyPath: "url" });
+          store.createIndex("byLastAccessed", "lastAccessed");
+        } else {
+          const store = e.target.transaction.objectStore("resources");
+          if (!store.indexNames.contains("byLastAccessed")) {
+            store.createIndex("byLastAccessed", "lastAccessed");
+          }
         }
       };
     });
@@ -1832,6 +1836,10 @@
         req.onsuccess = () => {
           const r = req.result;
           if (r && Date.now() - r.time < CACHE_TTL) {
+            try {
+              const wtx = cacheDB.transaction("resources", "readwrite");
+              wtx.objectStore("resources").put({ ...r, lastAccessed: Date.now() });
+            } catch {}
             resolve(r);
           } else {
             if (r) deleteCache(url);
@@ -1862,6 +1870,7 @@
         mime,
         headers,
         time: Date.now(),
+        lastAccessed: Date.now(),
         size,
       });
       cacheSize += size;
@@ -1871,10 +1880,22 @@
 
   async function deleteCache(url) {
     if (!cacheDB) return;
-    try {
-      const tx = cacheDB.transaction("resources", "readwrite");
-      tx.objectStore("resources").delete(url);
-    } catch {}
+    return new Promise((resolve) => {
+      try {
+        const tx = cacheDB.transaction("resources", "readwrite");
+        const store = tx.objectStore("resources");
+        const getReq = store.get(url);
+        getReq.onsuccess = () => {
+          const entry = getReq.result;
+          if (entry) {
+            cacheSize -= entry.size || 0;
+            store.delete(url);
+          }
+          resolve();
+        };
+        getReq.onerror = () => resolve();
+      } catch { resolve(); }
+    });
   }
 
   async function evictOldest() {
@@ -1884,12 +1905,13 @@
       try {
         const tx = cacheDB.transaction("resources", "readwrite");
         const store = tx.objectStore("resources");
-        const countReq = store.count();
+        const idx = store.index("byLastAccessed");
+        const countReq = idx.count();
         countReq.onsuccess = () => {
           const total = countReq.result;
           const toDelete = Math.max(1, Math.ceil(total * 0.1));
           let deleted = 0;
-          const curReq = store.openCursor();
+          const curReq = idx.openCursor();
           curReq.onsuccess = () => {
             const cursor = curReq.result;
             if (cursor && deleted < toDelete) {
@@ -4734,7 +4756,7 @@ window.__gustImportScripts = function(...urls) {
       xhr.open('GET', absUrl, false); 
       xhr.send();
       if (xhr.status >= 200 && xhr.status < 400) {
-        (0, eval)(xhr.responseText);
+        new Function(xhr.responseText)();
       }
     } catch(e) {}
   });
@@ -8601,7 +8623,7 @@ parent.postMessage({ t: 'ready' }, '*');
     }
     if (wispReset && wispInput) {
       wispReset.onclick = async () => {
-        const defaultWisp = "wss://wisp.mercurywork.shop/";
+        const defaultWisp = "wss://wisp.rhw.one/wisp/";
         wispInput.value = defaultWisp;
         try {
           ls.setItem("gust:wisp:v1", defaultWisp);

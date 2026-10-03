@@ -23,7 +23,7 @@
                 <div class="tab-strip" id="tabStrip">
                     <button class="tab active" id="tabActive" data-tab-id="1">
                         <span class="tab-icon"><i class="fas fa-earth-americas"></i></span>
-                        <span class="tab-title" id="tabTitle">新标签页</span>
+                        <span class="tab-title" id="tabTitle">新建标签页</span>
                     </button>
                     <button class="tab-add" id="newTab" title="新建标签页 (Ctrl+T)" style="flex-shrink:0;">
                         <i class="fas fa-plus"></i>
@@ -314,7 +314,7 @@
                 <div class="context-menu" id="contextMenu">
                     <button class="context-menu-item" id="ctxNewTab">
                         <i class="fas fa-plus"></i>
-                        <span>新标签页</span>
+                        <span>新建标签页</span>
                     </button>
                     <button class="context-menu-item" id="ctxReload">
                         <i class="fas fa-rotate-right"></i>
@@ -334,7 +334,7 @@
                         <i class="far fa-bookmark"></i>
                         <span>收藏此页</span>
                     </button>
-                    <button class="context-menu-item" id="ctxCopyUrl">
+                    <button class="context-menu-item" id="ctx复制Url">
                         <i class="fas fa-link"></i>
                         <span>复制网址</span>
                     </button>
@@ -350,7 +350,7 @@
                 </div>
 
                 <!-- Tab right-click context menu -->
-                <div class="tab-context-menu" id="tabContextMenu">
+                <div class="tab-context-menu" id="tab上下文Menu">
                     <button class="tab-ctx-item" id="tabCtxReload">
                         <i class="fas fa-rotate-right"></i>
                         <span>刷新标签页</span>
@@ -406,8 +406,8 @@
                             </div>
                         </div>
                         <div class="site-info-footer">
-                            <button class="site-info-btn" id="siteInfoCopy">
-                                <i class="fas fa-copy"></i> Copy URL
+                            <button class="site-info-btn" id="siteInfo复制">
+                                <i class="fas fa-copy"></i> 复制 URL
                             </button>
                             <button class="site-info-btn" id="siteInfoClose">
                                 <i class="fas fa-times"></i> Close
@@ -622,8 +622,7 @@
                             
                             <div class="settings-section" data-section="privacy" style="display:none;">
                                 <div class="settings-card">
-                                    <div class="settings-card-head"><i class="fas fa-shield-halved"></i> Privacy &amp;
-                                        Blocking</div>
+                                    <div class="settings-card-head"><i class="fas fa-shield-halved"></i> 隐私与拦截</div>
                                     <div class="settings-card-body">
                                         <div class="settings-switch-row">
                                             <div>
@@ -665,8 +664,7 @@
                                 </div>
 
                                 <div class="settings-card">
-                                    <div class="settings-card-head"><i class="fas fa-filter"></i> Blocklist &amp;
-                                        Filters</div>
+                                    <div class="settings-card-head"><i class="fas fa-filter"></i> 黑名单与过滤器</div>
                                     <div class="settings-card-body">
                                         <div style="margin-bottom: 16px;">
                                             <div class="settings-switch-label">自定义过滤规则</div>
@@ -756,8 +754,7 @@
                                         <div class="settings-switch-row">
                                             <div>
                                                 <div class="settings-switch-label">记住面板宽度</div>
-                                                <div class="settings-hint">When enabled, panel widths are saved.
-                                                    When , they reset to default on close.</div>
+                                                <div class="settings-hint">启用后，面板宽度会被保存。关闭后，关闭时重置为默认值。</div>
                                             </div>
                                             <div class="settings-switch on" id="settingsPanelWidthSwitch">
                                                 <div class="settings-switch-track">
@@ -813,7 +810,7 @@
                                         <div class="settings-switch-row" style="align-items:center;">
                                             <div style="flex:1;">
                                                 <div class="settings-switch-label">启用键盘快捷键</div>
-                                                <div class="settings-hint">When off, all Alt + key shortcuts are .</div>
+                                                <div class="settings-hint">关闭后，所有 Alt + 按键快捷键都将禁用。</div>
                                             </div>
                                             <div class="settings-switch on" id="settingsShortcutsEnabledSwitch">
                                                 <div class="settings-switch-track">
@@ -825,7 +822,7 @@
                                             <div style="height:1px; background:var(--bd); margin-bottom:2px;"></div>
                                             <div
                                                 style="display:flex; justify-content:space-between; align-items:center;">
-                                                <span style="color:var(--tx2);">新标签页</span>
+                                                <span style="color:var(--tx2);">新建标签页</span>
                                                 <div style="display:flex; gap:8px; align-items:center;">
                                                     <code
                                                         style="background:var(--bg3); padding:4px 10px; border-radius:4px; color:var(--tx); font-size:11px; border:1px solid var(--bd);">Alt + T</code>
@@ -1115,7 +1112,7 @@
                                             <div
                                                 style="color:var(--ac); font-weight:700; font-size:18px; display:flex; align-items:center; gap:10px;">
                                                 <i class="fas fa-wind" style="font-size:22px;"></i>
-                                                GUST Browser
+                                                GUST 浏览器
                                             </div>
                                             <span
                                                 style="font-size:11px; font-weight:700; letter-spacing:0.05em; color:var(--ac); background:rgba(157,229,255,0.10); border:1px solid rgba(157,229,255,0.35); border-radius:6px; padding:2px 7px; font-family:var(--mono);">v1.0</span>
@@ -1125,7 +1122,7 @@
                                             style="display:flex; flex-direction:column; gap:16px; font-size:13px; line-height:1.7; color:var(--tx2);">
                                             <div>
                                                 <div style="margin-bottom:2px;">由 <a href="https://github.com/cjhdevact/GUST-Chinese" target="_blank" rel="noopener noreferrer" style="color:var(--ac);text-decoration:none;">GUST-Chinese</a> 实现翻译</div>
-                                        <div style="margin-bottom:10px;">基于 ec3493ca0cb592bfec661a19581af73aaccdaa1e 提交翻译</div>
+                                        <div style="margin-bottom:10px;">基于 78df43014334176ca000bb252efc1185beb893a7 提交翻译</div>
                                         <div
                                                     style="color:var(--tx); font-weight:600; margin-bottom:4px; display:flex; align-items:center; gap:8px;">
                                                     <i class="fas fa-globe" style="color:var(--ac);"></i> 工作原理
@@ -1141,11 +1138,7 @@
                                                     <i class="fas fa-network-wired" style="color:var(--ac);"></i>
                                                     WISP + libcurl.js
                                                 </div>
-                                                所有网络请求都通过 <strong style="color:var(--tx);">WISP WebSocket 服务器</strong>隧道传输。 你的浏览器会向 WISP 端点打开一个 WebSocket，由其代为转发 TCP/TLS 连接。 The actual HTTP fetching is
-                                                handled by <strong style="color:var(--tx);">libcurl.js</strong>
-                                                &amp;mdash; a port of the curl HTTP library compiled to WebAssembly
-                                                &amp;mdash; giving full HTTPS, redirect, and cookie support inside the
-                                                browser context.
+                                                所有网络请求都通过 <strong style="color:var(--tx);">WISP WebSocket 服务器</strong>隧道传输。你的浏览器会向 WISP 端点打开一个 WebSocket，由其代为转发 TCP/TLS 连接。 实际的 HTTP 请求由 <strong style="color:var(--tx);">libcurl.js</strong> 处理 &amp;mdash; 它是 curl HTTP 库编译为 WebAssembly 的移植版 &amp;mdash; 在浏览器上下文中提供完整的 HTTPS、重定向和 Cookie 支持。
                                             </div>
 
                                             <div>
@@ -1159,8 +1152,7 @@
                                             <div>
                                                 <div
                                                     style="color:var(--tx); font-weight:600; margin-bottom:4px; display:flex; align-items:center; gap:8px;">
-                                                    <i class="fas fa-shield-halved" style="color:var(--ac);"></i>
-                                                    隐私与限制
+                                                    <i class="fas fa-shield-halved" style="color:var(--ac);"></i> 隐私与限制
                                                 </div>
                                                 由于请求流经 WISP 服务器，你的真实 IP 不会暴露给你访问的站点。 但 WISP 服务器运营者可能看到你的流量。
                                                 一些复杂的 Web 特性（页面内的原生 WebSocket、WebRTC、Service Worker）无法完全代理，可能无法工作。
@@ -1170,8 +1162,7 @@
                                           <div>
                                                 <div
                                                     style="color:var(--tx); font-weight:600; margin-bottom:8px; display:flex; align-items:center; gap:8px;">
-                                                    <i class="fa-solid fa-address-card" style="color:var(--ac);"></i>
-                                                    致谢
+                                                    <i class="fa-solid fa-address-card" style="color:var(--ac);"></i> 致谢
                                                 </div>
                                                 <div style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--tx2);">
                                                     <div>
@@ -1181,7 +1172,7 @@
                                                         <span style="color:var(--tx3);font-size:11px;margin-left:4px;">WebSocket 代理隧道</span>
                                                     </div>
                                                     <div>
-                                                        <span style="color:var(--tx);font-weight:600;">Original Gust Framework &amp; JS</span>
+                                                        <span style="color:var(--tx);font-weight:600;">原始 Gust 框架与 JS</span>
                                                         <span style="color:var(--tx3)"> — </span>
                                                         lanefiedler731-gif
                                                     </div>
@@ -1464,7 +1455,7 @@
 
                 <div class="overlay splash" id="overlay">
                     <div class="spinner"></div>
-                    <div id="overlayText">Initializing...</div>
+                    <div id="overlayText">正在初始化...</div>
                 </div>
                 <div id="elemHighlightOverlay" style="
                     display:none;
@@ -1565,9 +1556,9 @@
                 
                 <div id="elemCtxMenu"
                     style="display:none;position:fixed;z-index:99999;background:var(--bg2);border:1px solid var(--bd);border-radius:8px;padding:4px;min-width:170px;box-shadow:0 8px 24px rgba(0,0,0,.5);">
-                    <button class="ctx-item" id="ctxCopySelector"><i class="fas fa-code" style="width:14px"></i> 复制选择器</button>
-                    <button class="ctx-item" id="ctxCopyHtml"><i class="fas fa-copy" style="width:14px"></i> 复制 HTML</button>
-                    <button class="ctx-item" id="ctxCopyText"><i class="fas fa-font" style="width:14px"></i> 复制文本</button>
+                    <button class="ctx-item" id="ctx复制Selector"><i class="fas fa-code" style="width:14px"></i> 复制选择器</button>
+                    <button class="ctx-item" id="ctx复制Html"><i class="fas fa-copy" style="width:14px"></i> 复制 HTML</button>
+                    <button class="ctx-item" id="ctx复制Text"><i class="fas fa-font" style="width:14px"></i> 复制文本</button>
                     <div style="height:1px;background:var(--bd);margin:3px 0;"></div>
                     <button class="ctx-item" id="ctxScrollTo"><i class="fas fa-eye" style="width:14px"></i> 滚动到视图</button>
                     <button class="ctx-item" id="ctxHideElement"><i class="fas fa-eye-slash" style="width:14px"></i> 隐藏元素</button>
