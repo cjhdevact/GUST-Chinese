@@ -26,43 +26,6 @@ GUST 是一个功能齐全的 Web 代理，**完整运行在单个 HTML 文件�
 
 ---
 
-## 为什么学校封不掉它
-
-市面上所有 Web 代理都依赖一样东西——**Service Worker**（服务工作者），一种在网络请求到达浏览器之前拦截请求的后台脚本。它是任何 Web 代理的核心组件，负责与服务器通信并转发你的请求，但 Service Worker **始终需要一个在线服务器才能运行**。这意味着传统代理只在特定 URL 上托管时才能工作，一旦这个 URL 被封，代理就死了。你大概很熟悉这场与管理员之间的猫鼠游戏——有人做了个链接，用个一两天，然后就被封了。
-
-校园网络过滤器、管理员安装的浏览器扩展（比如 Securly、Lightspeed Systems、Linewize、Blocksi 等等），以及管理员控制的浏览器（比如 Chromebook MDM 策略）恰恰最擅长做这种事。学校维护着封禁列表，每天往里加新站点。很多过滤扩展还有更高级的功能——读取链接元数据来识别代理特征并自动加入封禁列表。还有更多扩展会限制后台能运行什么，这正是当前所有代理站点的最大死穴。
-
-**GUST 完全不用 Service Worker**。下面是我们想出来的替代方案：
-
-<img width="1440" height="1040" alt="image" src="https://github.com/user-attachments/assets/f5403020-c0b4-4d89-b795-cfa11b898c78" /><br>
-
-取而代之，它使用 **libcurl.js**——一个编译为 WebAssembly 的完整 HTTP 库——通过一种叫 WISP 协议的 WebSocket 隧道直接发起请求。（感谢 Mercury Workshop 的贡献）整个代理引擎作为纯 JavaScript 运行在单个 HTML 文件内。这意味着：
-
-- ✅ **可以作为本地文件运行**（`file://`），没有服务器、没有域名可封
-- ✅ **可以托管在任何静态文件能放的地方**：GitHub Pages、Vercel、Netlify、U 盘、Google 文档、Google 协作平台……
-- ✅ **可以托管在 JSDelivr 或 CDN 上**，因为整个站点可以通过一个 SVG 文件加载
-- ✅ **没有 Service Worker 可封**，因为它根本没注册过
-- ✅ **可以被重命名、嵌入 iframe，或被另一个 HTML 文件包裹**，让过滤器无从下手
-- ✅ **可以粘贴进任何在线所见即所得 HTML 编辑器**，因为它就是内联了 CSS 和 JS 的 HTML
-- ✅ **可以被编译成 blob: 或 data: URL 打开**，毕竟它还是 HTML
-- ✅ **可以写入 about:blank 页面后在那里使用**，不用我再说为什么了吧
-
-一句话概括：大多数拦截器只能封 URL，而 GUST 是一个**文件**。你没法封一个文件而不严重破坏学生用户体验，就算他们真这么干了——HTML 可以被托管或打开在任何东西里。它是万维网的骨架。不用再打地鼠、不用再猫抓老鼠地找未封链接、不用再等学校封掉它们了！
-
----
-
-## 截图
-
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/cb9d573e-1e03-4abf-b74f-643a2f7eac72" />
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/27889e79-d7cd-4c37-899a-3ba628d8d070" />
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/bcb54134-3d65-402f-a348-2dda9b933ad3" />
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/19d59861-fc7e-43f1-8f68-43a34cf53b7d" />
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/ce7c4635-ff48-48be-a774-2fd95f179122" />
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/1af1b00c-2439-4532-8aeb-97b4018cc049" />
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/6fe149db-1370-4157-ab80-c3ceb7eb627e" />
-
----
-
 ## 工作原理
 
 当你输入一个 URL，GUST 会通过 WebAssembly HTTP 客户端获取整个页面，重写每一个资源 URL，注入代理运行时脚本，并把结果渲染到一个沙盒 iframe 里。需要特别说明的是：**iframe 纯粹用于沙盒隔离**，你在 GUST 里访问的站点其实已经被代理过了。而在其他低质量的、自称可以不用 Service Worker 的“代理”里，iframe 往往只是简单指向另一个 URL（例如 `<iframe src="https://blocked-site.com">`），完全没有额外的重写或代理。这立刻就失败了，因为过滤器能看见发往被封域名的请求并直接掐掉。而在 GUST 内部，它通过 Wisp 隧道获取原始数据，并清洗代码，把每一个链接和资源都重定向回自己，然后把这份修改过的载荷注入 iframe 作为沙盒环境。这保证了被代理站点可以运行自己的脚本和样式，同时不会破坏 GUST 界面、不会把你的真实活动泄露给网络过滤器，也保证过滤器能看见的**唯一请求就是发往 Wisp 服务器的请求**。具体流程如下：
@@ -126,11 +89,11 @@ GUST 的功能比一个代理严格来说需要的还要多，但我们希望你
 
 **方式一：直接打开文件**
 
-下载 `index.html`，用任意现代浏览器打开。就这样。整个配置流程就这样。
+下载 `index-CHS.html`，用任意现代浏览器打开。就这样。整个配置流程就这样。
 
 **方式二：托管它**
 
-把 `index.html` 丢到任意静态托管上。GitHub Pages、Vercel、Cloudflare Pages、Netlify、你学校 2003 年就上线至今还在跑的免费托管。都能用。
+把 `index-CHS.html` 丢到任意静态托管上。GitHub Pages、Vercel、Cloudflare Pages、Netlify。都能用。
 
 **方式三：嵌入它**
 
